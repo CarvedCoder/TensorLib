@@ -8,7 +8,7 @@ Made it so that i can use it for my other projects
 
 Tiny, header-friendly tensor library with NumPy-compatible strides, zero dependencies at runtime, and 100 % test coverage via GoogleTest.
 
-## 🔥 Current Features
+## Current Features
 
 | Feature                   | Status | Notes                                                    |
 | ------------------------- | ------ | -------------------------------------------------------- |
@@ -25,7 +25,7 @@ Tiny, header-friendly tensor library with NumPy-compatible strides, zero depende
 
 ---
 
-## 🧪 What the 42 Tests Prove
+## What the 42 Tests Prove
 
 | Suite                  | Tests                      | Highlights                                             |
 | ---------------------- | -------------------------- | ------------------------------------------------------ |
@@ -42,12 +42,25 @@ All tests pass in **31 ms** on a cold run (Release build).
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 git clone https://github.com/yourname/minitensor.git
 cd minitensor
+```
+
+```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
+
+or
+
+```bash
+mkdir build && cd build
+cmake ..
+make
+```
+
+Run any program you want
