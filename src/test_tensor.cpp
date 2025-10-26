@@ -741,4 +741,615 @@ TEST(TensorOpsTest, Matmul_NegativeValues) {
     EXPECT_FLOAT_EQ((*C)(1, 0), 9.0f);    // -3*1 + 4*3
     EXPECT_FLOAT_EQ((*C)(1, 1), -10.0f);  // -3*(-2) + 4*(-4)
 }
+// ============================================================================
+// INTENSIVE NUMERICAL CALCULATIONS
+// ============================================================================
 
+TEST(TensorIntensiveTest, ChainedOperations_PreservesAccuracy) {
+    // Test numerical stability through multiple operations
+    auto t1 = Tensor::createOnes({100, 100});
+    auto t2 = Tensor::createOnes({100, 100});
+
+    // (((t1 + t2) * t1) - t2) should equal t1
+    auto r1 = TensorOps::operator+(t1, t2);  // 2.0
+    auto r2 = TensorOps::operator*(r1, t1);  // 2.0
+    auto r3 = TensorOps::operator-(r2, t2);  // 1.0
+
+    for (size_t i = 0; i < 10000; ++i) {
+        EXPECT_FLOAT_EQ(r3->getDataElem(i), 1.0f);
+    }
+}
+
+TEST(TensorIntensiveTest, MassiveElementWiseMultiplication) {
+    auto arr1 = std::make_unique<float[]>(100000);
+    auto arr2 = std::make_unique<float[]>(100000);
+
+    for (size_t i = 0; i < 100000; ++i) {
+        arr1[i] = static_cast<float>(i % 1000) / 1000.0f;
+        arr2[i] = static_cast<float>(i % 500) / 500.0f;
+    }
+
+    auto t1 = Tensor::CreateTensor(std::move(arr1), 100000, {100, 1000});
+    auto t2 = Tensor::CreateTensor(std::move(arr2), 100000, {100, 1000});
+
+    using namespace std::chrono;
+    auto start = high_resolution_clock::now();
+    auto result = TensorOps::operator*(t1, t2);
+    auto end = high_resolution_clock::now();
+    auto ms = duration_cast<milliseconds>(end - start).count();
+
+    EXPECT_LT(ms, 100) << "100k element multiplication took " << ms << " ms";
+    EXPECT_EQ(result->getTotalSize(), 100000);
+}
+
+TEST(TensorIntensiveTest, HighDimensionalCalculation_8D) {
+    // 2^8 = 256 elements across 8 dimensions
+    std::array<size_t, MAX_RANK> shape{2, 2, 2, 2, 2, 2, 2, 2};
+    auto t1 = Tensor::createOnes(shape);
+    auto t2 = Tensor::createOnes(shape);
+
+    for (size_t i = 0; i < 256; ++i) {
+        t1->setDataElem(i, static_cast<float>(i));
+        t2->setDataElem(i, static_cast<float>(i * 2));
+    }
+
+    auto add_result = TensorOps::operator+(t1, t2);
+    auto mul_result = TensorOps::operator*(t1, t2);
+
+    for (size_t i = 0; i < 256; ++i) {
+        EXPECT_FLOAT_EQ(add_result->getDataElem(i), static_cast<float>(i * 3));
+        EXPECT_FLOAT_EQ(mul_result->getDataElem(i), static_cast<float>(i * i * 2));
+    }
+}
+
+TEST(TensorIntensiveTest, RepetitiveOperations_MemoryStability) {
+    // Ensure no memory corruption or leaks through repeated ops
+    auto t1 = Tensor::createOnes({50, 50});
+    auto t2 = Tensor::createOnes({50, 50});
+
+    for (int iter = 0; iter < 1000; ++iter) {
+        auto result = TensorOps::operator+(t1, t2);
+        EXPECT_FLOAT_EQ(result->getDataElem(0), 2.0f);
+        EXPECT_FLOAT_EQ(result->getDataElem(2499), 2.0f);
+    }
+}
+
+TEST(TensorIntensiveTest, AlternatingOpsPattern) {
+    auto t = Tensor::createScalar(1.0f);
+    auto one = Tensor::createScalar(1.0f);
+
+    // ((((1 + 1) * 1) - 1) + 1) * 1 - 1 ... repeat 100 times
+    for (int i = 0; i < 100; ++i) {
+        t = TensorOps::operator+(t, one);
+        t = TensorOps::operator*(t, one);
+        t = TensorOps::operator-(t, one);
+    }
+
+    EXPECT_FLOAT_EQ(t->getDataElem(0), 1.0f);
+}
+
+// ============================================================================
+// FLOATING POINT EDGE CASES
+// ============================================================================
+
+TEST(TensorEdgeCaseTest, DenormalNumbers) {
+    float denorm = std::numeric_limits<float>::denorm_min();
+    auto t1 = Tensor::createScalar(denorm);
+    auto t2 = Tensor::createScalar(denorm);
+
+    auto result = TensorOps::operator+(t1, t2);
+    EXPECT_GT(result->getDataElem(0), 0.0f);
+    EXPECT_LT(result->getDataElem(0), std::numeric_limits<float>::min());
+}
+
+TEST(TensorEdgeCaseTest, MaxFloatValues) {
+    float max_val = std::numeric_limits<float>::max();
+    auto t1 = Tensor::createScalar(max_val);
+    auto t2 = Tensor::createScalar(max_val);
+
+    auto result = TensorOps::operator+(t1, t2);
+    EXPECT_TRUE(std::isinf(result->getDataElem(0)));
+}
+
+TEST(TensorEdgeCaseTest, NegativeZeroHandling) {
+    auto t1 = Tensor::createScalar(-0.0f);
+    auto t2 = Tensor::createScalar(0.0f);
+
+    auto result = TensorOps::operator+(t1, t2);
+    EXPECT_FLOAT_EQ(result->getDataElem(0), 0.0f);
+}
+
+TEST(TensorEdgeCaseTest, InfinityArithmetic) {
+    auto inf_pos = Tensor::createScalar(std::numeric_limits<float>::infinity());
+    auto inf_neg = Tensor::createScalar(-std::numeric_limits<float>::infinity());
+    auto finite = Tensor::createScalar(42.0f);
+
+    // inf + finite = inf
+    auto r1 = TensorOps::operator+(inf_pos, finite);
+    EXPECT_TRUE(std::isinf(r1->getDataElem(0)));
+    EXPECT_GT(r1->getDataElem(0), 0.0f);
+
+    // inf * 0 = nan
+    auto zero = Tensor::createScalar(0.0f);
+    auto r2 = TensorOps::operator*(inf_pos, zero);
+    EXPECT_TRUE(std::isnan(r2->getDataElem(0)));
+
+    // inf * -1
+    auto neg_one = Tensor::createScalar(-1.0f);
+    auto r3 = TensorOps::operator*(inf_pos, neg_one);
+    EXPECT_TRUE(std::isinf(r3->getDataElem(0)));
+    EXPECT_LT(r3->getDataElem(0), 0.0f);
+}
+
+TEST(TensorEdgeCaseTest, NaNPropagation) {
+    auto nan_t = Tensor::createScalar(std::numeric_limits<float>::quiet_NaN());
+    auto normal = Tensor::createScalar(5.0f);
+
+    // All operations with NaN should produce NaN
+    auto add_r = TensorOps::operator+(nan_t, normal);
+    auto sub_r = TensorOps::operator-(nan_t, normal);
+    auto mul_r = TensorOps::operator*(nan_t, normal);
+
+    EXPECT_TRUE(std::isnan(add_r->getDataElem(0)));
+    EXPECT_TRUE(std::isnan(sub_r->getDataElem(0)));
+    EXPECT_TRUE(std::isnan(mul_r->getDataElem(0)));
+}
+
+TEST(TensorEdgeCaseTest, VerySmallDifferences) {
+    // Test precision near epsilon
+    float eps = std::numeric_limits<float>::epsilon();
+    auto t1 = Tensor::createScalar(1.0f);
+    auto t2 = Tensor::createScalar(1.0f + eps);
+
+    auto result = TensorOps::operator-(t2, t1);
+    EXPECT_GT(result->getDataElem(0), 0.0f);
+    EXPECT_LE(result->getDataElem(0), eps * 2.0f);
+}
+
+TEST(TensorEdgeCaseTest, CatastrophicCancellation) {
+    // Large numbers that nearly cancel
+    auto t1 = Tensor::createScalar(1e20f);
+    auto t2 = Tensor::createScalar(-1e20f + 1.0f);
+
+    auto result = TensorOps::operator+(t1, t2);
+    // Due to floating point limitations, result may not be exactly 1.0
+    EXPECT_LT(result->getDataElem(0), 2.0f);
+}
+
+// ============================================================================
+// MEMORY AND BOUNDARY TESTS
+// ============================================================================
+
+TEST(TensorEdgeCaseTest, SingleDimensionSizes) {
+    // Test edge dimensions: 1, 2, prime numbers, powers of 2
+    std::vector<size_t> sizes = {1, 2, 3, 5, 7, 11, 16, 32, 64, 127, 128, 256, 1000};
+
+    for (auto size : sizes) {
+        auto t = Tensor::createZeros({size, 0, 0, 0, 0, 0, 0, 0});
+        EXPECT_EQ(t->getTotalSize(), size);
+        EXPECT_FLOAT_EQ(t->getDataElem(0), 0.0f);
+        EXPECT_FLOAT_EQ(t->getDataElem(size - 1), 0.0f);
+    }
+}
+
+TEST(TensorEdgeCaseTest, AllDimensionsOne) {
+    std::array<size_t, MAX_RANK> shape{1, 1, 1, 1, 1, 1, 1, 1};
+    auto t = Tensor::createScalar(42.0f);
+    auto zeros = Tensor::createZeros(shape);
+
+    EXPECT_EQ(zeros->getTotalSize(), 1);
+    EXPECT_FLOAT_EQ(zeros->getDataElem(0), 0.0f);
+}
+
+TEST(TensorEdgeCaseTest, LargePrimeDimensions) {
+    // 101 * 103 = 10403 (both prime)
+    auto t = Tensor::createZeros({101, 103, 0, 0, 0, 0, 0, 0});
+    EXPECT_EQ(t->getTotalSize(), 10403);
+
+    auto strides = Tensor::calculate_strides({101, 103, 0, 0, 0, 0, 0, 0});
+    EXPECT_EQ(strides[0], 103);
+    EXPECT_EQ(strides[1], 1);
+}
+
+TEST(TensorEdgeCaseTest, BoundaryIndexAccess2D) {
+    auto arr = std::make_unique<float[]>(12);
+    for (size_t i = 0; i < 12; ++i) arr[i] = static_cast<float>(i);
+    auto t = Tensor::CreateTensor(std::move(arr), 12, {3, 4});
+
+    // Corner elements
+    EXPECT_FLOAT_EQ((*t)(0, 0), 0.0f);
+    EXPECT_FLOAT_EQ((*t)(0, 3), 3.0f);
+    EXPECT_FLOAT_EQ((*t)(2, 0), 8.0f);
+    EXPECT_FLOAT_EQ((*t)(2, 3), 11.0f);
+
+    // Just beyond boundary should throw
+    EXPECT_THROW((*t)(3, 0), std::out_of_range);
+    EXPECT_THROW((*t)(0, 4), std::out_of_range);
+    EXPECT_THROW((*t)(3, 4), std::out_of_range);
+}
+
+TEST(TensorEdgeCaseTest, BoundaryIndexAccess3D) {
+    auto arr = std::make_unique<float[]>(24);
+    for (size_t i = 0; i < 24; ++i) arr[i] = static_cast<float>(i);
+    auto t = Tensor::CreateTensor(std::move(arr), 24, {2, 3, 4});
+
+    // All corners
+    EXPECT_FLOAT_EQ((*t)(0, 0, 0), 0.0f);
+    EXPECT_FLOAT_EQ((*t)(0, 0, 3), 3.0f);
+    EXPECT_FLOAT_EQ((*t)(0, 2, 0), 8.0f);
+    EXPECT_FLOAT_EQ((*t)(0, 2, 3), 11.0f);
+    EXPECT_FLOAT_EQ((*t)(1, 0, 0), 12.0f);
+    EXPECT_FLOAT_EQ((*t)(1, 2, 3), 23.0f);
+
+    // Boundary violations
+    EXPECT_THROW((*t)(2, 0, 0), std::out_of_range);
+    EXPECT_THROW((*t)(0, 3, 0), std::out_of_range);
+    EXPECT_THROW((*t)(0, 0, 4), std::out_of_range);
+}
+
+// ============================================================================
+// STRIDE AND INDEXING EDGE CASES
+// ============================================================================
+
+TEST(TensorEdgeCaseTest, NonContiguousStrides_AllOnes) {
+    std::array<size_t, MAX_RANK> shape{1, 1, 1, 1, 1, 1, 1, 1};
+    auto strides = Tensor::calculate_strides(shape);
+
+    // All strides should be 1
+    for (size_t i = 0; i < MAX_RANK; ++i) {
+        EXPECT_EQ(strides[i], 1);
+    }
+}
+
+TEST(TensorEdgeCaseTest, MixedStridePattern) {
+    // Shape with varying dimensions
+    std::array<size_t, MAX_RANK> shape{10, 1, 5, 1, 2, 0, 0, 0};
+    auto strides = Tensor::calculate_strides(shape);
+
+    EXPECT_EQ(strides[0], 10);  // 1*5*1*2
+    EXPECT_EQ(strides[1], 10);  // 5*1*2
+    EXPECT_EQ(strides[2], 2);   // 1*2
+    EXPECT_EQ(strides[3], 2);   // 2
+    EXPECT_EQ(strides[4], 1);   // 1
+}
+
+TEST(TensorEdgeCaseTest, LastDimensionLarge) {
+    std::array<size_t, MAX_RANK> shape{2, 2, 10000, 0, 0, 0, 0, 0};
+    auto strides = Tensor::calculate_strides(shape);
+
+    EXPECT_EQ(strides[0], 20000);
+    EXPECT_EQ(strides[1], 10000);
+    EXPECT_EQ(strides[2], 1);
+}
+
+// ============================================================================
+// OPERATION COMMUTATIVITY AND PROPERTIES
+// ============================================================================
+
+TEST(TensorPropertiesTest, AdditionCommutativity) {
+    auto arr1 = std::make_unique<float[]>(100);
+    auto arr2 = std::make_unique<float[]>(100);
+
+    for (size_t i = 0; i < 100; ++i) {
+        arr1[i] = static_cast<float>(i) * 0.5f;
+        arr2[i] = static_cast<float>(i) * 1.5f;
+    }
+
+    auto t1 = Tensor::CreateTensor(std::move(arr1), 100, {10, 10});
+    auto t2 = Tensor::CreateTensor(std::move(arr2), 100, {10, 10});
+
+    auto r1 = TensorOps::operator+(t1, t2);
+    auto r2 = TensorOps::operator+(t2, t1);
+
+    for (size_t i = 0; i < 100; ++i) {
+        EXPECT_FLOAT_EQ(r1->getDataElem(i), r2->getDataElem(i));
+    }
+}
+
+TEST(TensorPropertiesTest, MultiplicationCommutativity) {
+    auto t1 = Tensor::createOnes({50, 0, 0, 0, 0, 0, 0, 0});
+    auto t2 = Tensor::createOnes({50, 0, 0, 0, 0, 0, 0, 0});
+
+    for (size_t i = 0; i < 50; ++i) {
+        t1->setDataElem(i, static_cast<float>(i));
+        t2->setDataElem(i, static_cast<float>(i + 1));
+    }
+
+    auto r1 = TensorOps::operator*(t1, t2);
+    auto r2 = TensorOps::operator*(t2, t1);
+
+    for (size_t i = 0; i < 50; ++i) {
+        EXPECT_FLOAT_EQ(r1->getDataElem(i), r2->getDataElem(i));
+    }
+}
+
+TEST(TensorPropertiesTest, AdditionAssociativity) {
+    auto t1 = Tensor::createScalar(1.5f);
+    auto t2 = Tensor::createScalar(2.5f);
+    auto t3 = Tensor::createScalar(3.5f);
+
+    // (t1 + t2) + t3
+    auto r1 = TensorOps::operator+(TensorOps::operator+(t1, t2), t3);
+
+    // t1 + (t2 + t3)
+    auto r2 = TensorOps::operator+(t1, TensorOps::operator+(t2, t3));
+
+    EXPECT_FLOAT_EQ(r1->getDataElem(0), r2->getDataElem(0));
+    EXPECT_FLOAT_EQ(r1->getDataElem(0), 7.5f);
+}
+
+TEST(TensorPropertiesTest, DistributiveProperty) {
+    auto a = Tensor::createScalar(2.0f);
+    auto b = Tensor::createScalar(3.0f);
+    auto c = Tensor::createScalar(4.0f);
+
+    // a * (b + c) = a*b + a*c
+    auto lhs = TensorOps::operator*(a, TensorOps::operator+(b, c));
+    auto rhs = TensorOps::operator+(TensorOps::operator*(a, b),
+                                     TensorOps::operator*(a, c));
+
+    EXPECT_FLOAT_EQ(lhs->getDataElem(0), rhs->getDataElem(0));
+    EXPECT_FLOAT_EQ(lhs->getDataElem(0), 14.0f);
+}
+
+// ============================================================================
+// ERROR CONDITION STRESS TESTS
+// ============================================================================
+
+TEST(TensorErrorTest, MultipleShapeMismatches) {
+    std::vector<std::array<size_t, MAX_RANK>> shapes = {
+        {2, 3, 0, 0, 0, 0, 0, 0},
+        {3, 2, 0, 0, 0, 0, 0, 0},
+        {2, 4, 0, 0, 0, 0, 0, 0},
+        {1, 6, 0, 0, 0, 0, 0, 0},
+        {6, 0, 0, 0, 0, 0, 0, 0}
+    };
+
+    auto base = Tensor::createZeros(shapes[0]);
+
+    for (size_t i = 1; i < shapes.size(); ++i) {
+        auto t = Tensor::createZeros(shapes[i]);
+        EXPECT_THROW(TensorOps::operator+(base, t), std::invalid_argument);
+        EXPECT_THROW(TensorOps::operator-(base, t), std::invalid_argument);
+        EXPECT_THROW(TensorOps::operator*(base, t), std::invalid_argument);
+    }
+}
+
+TEST(TensorErrorTest, ExtremeIndexValues) {
+    auto t = Tensor::createZeros({10, 10, 0, 0, 0, 0, 0, 0});
+
+    // Maximum size_t should wrap and cause out of range
+    EXPECT_THROW((*t)(SIZE_MAX, 0), std::out_of_range);
+    EXPECT_THROW((*t)(0, SIZE_MAX), std::out_of_range);
+
+    // Large but not maximum
+    EXPECT_THROW((*t)(1000000, 0), std::out_of_range);
+    EXPECT_THROW((*t)(0, 1000000), std::out_of_range);
+}
+
+// ============================================================================
+// PERFORMANCE REGRESSION TESTS
+// ============================================================================
+
+TEST(TensorPerformanceTest, Sequential1MAccess) {
+    auto t = Tensor::createZeros({1000, 1000, 0, 0, 0, 0, 0, 0});
+
+    using namespace std::chrono;
+    auto start = high_resolution_clock::now();
+
+    for (size_t i = 0; i < 1000000; ++i) {
+        t->setDataElem(i, static_cast<float>(i));
+    }
+
+    auto end = high_resolution_clock::now();
+    auto ms = duration_cast<milliseconds>(end - start).count();
+
+    EXPECT_LT(ms, 50) << "1M sequential writes took " << ms << " ms";
+}
+
+TEST(TensorPerformanceTest, Random2DAccess) {
+    auto t = Tensor::createZeros({1000, 1000, 0, 0, 0, 0, 0, 0});
+
+    using namespace std::chrono;
+    auto start = high_resolution_clock::now();
+
+    for (size_t i = 0; i < 1000; i += 10) {
+        for (size_t j = 0; j < 1000; j += 10) {
+            (*t)(i, j) = static_cast<float>(i + j);
+        }
+    }
+
+    auto end = high_resolution_clock::now();
+    auto ms = duration_cast<milliseconds>(end - start).count();
+
+    EXPECT_LT(ms, 10) << "10k random 2D accesses took " << ms << " ms";
+}
+// ============================================================================
+// ADDITIONAL EXTREME EDGE CASES
+// ============================================================================
+
+TEST(TensorExtremeTest, AlternatingSignsLargeScale) {
+    auto arr = std::make_unique<float[]>(10000);
+    for (size_t i = 0; i < 10000; ++i) {
+        arr[i] = (i % 2 == 0) ? 1e10f : -1e10f;
+    }
+    auto t = Tensor::CreateTensor(std::move(arr), 10000, {100, 100});
+
+    auto result = TensorOps::operator+(t, t);
+    for (size_t i = 0; i < 10000; ++i) {
+        float expected = (i % 2 == 0) ? 2e10f : -2e10f;
+        EXPECT_FLOAT_EQ(result->getDataElem(i), expected);
+    }
+}
+
+TEST(TensorExtremeTest, SubtractionResultingInZeros) {
+    auto arr = std::make_unique<float[]>(1000);
+    for (size_t i = 0; i < 1000; ++i) {
+        arr[i] = static_cast<float>(i) * 0.123456789f;
+    }
+    auto t1 = Tensor::CreateTensor(std::move(arr), 1000, {10, 100});
+
+    auto arr2 = std::make_unique<float[]>(1000);
+    for (size_t i = 0; i < 1000; ++i) {
+        arr2[i] = static_cast<float>(i) * 0.123456789f;
+    }
+    auto t2 = Tensor::CreateTensor(std::move(arr2), 1000, {10, 100});
+
+    auto result = TensorOps::operator-(t1, t2);
+    for (size_t i = 0; i < 1000; ++i) {
+        EXPECT_NEAR(result->getDataElem(i), 0.0f, 1e-6f);
+    }
+}
+
+TEST(TensorExtremeTest, MultiplicationByZeroMassive) {
+    auto t1 = Tensor::createOnes({500, 500, 0, 0, 0, 0, 0, 0});
+    auto t2 = Tensor::createZeros({500, 500, 0, 0, 0, 0, 0, 0});
+
+    for (size_t i = 0; i < 250000; ++i) {
+        t1->setDataElem(i, static_cast<float>(i) * 1.23f);
+    }
+
+    auto result = TensorOps::operator*(t1, t2);
+    for (size_t i = 0; i < 250000; ++i) {
+        EXPECT_FLOAT_EQ(result->getDataElem(i), 0.0f);
+    }
+}
+
+TEST(TensorExtremeTest, FractionalAccumulation) {
+    // Test accumulation of many small fractions
+    auto t_base = Tensor::createZeros({100, 0, 0, 0, 0, 0, 0, 0});
+    auto t_small = Tensor::createOnes({100, 0, 0, 0, 0, 0, 0, 0});
+
+    for (size_t i = 0; i < 100; ++i) {
+        t_small->setDataElem(i, 0.01f);
+    }
+
+    auto result = t_base;
+    for (int i = 0; i < 100; ++i) {
+        result = TensorOps::operator+(result, t_small);
+    }
+
+    // Should be exactly 1.0 after 100 iterations
+    for (size_t i = 0; i < 100; ++i) {
+        EXPECT_NEAR(result->getDataElem(i), 1.0f, 1e-5f);
+    }
+}
+
+TEST(TensorExtremeTest, MixedMagnitudeOperations) {
+    auto arr1 = std::make_unique<float[]>(1000);
+    auto arr2 = std::make_unique<float[]>(1000);
+
+    for (size_t i = 0; i < 1000; ++i) {
+        arr1[i] = 1e20f;  // Very large
+        arr2[i] = 1e-20f; // Very small
+    }
+
+    auto t1 = Tensor::CreateTensor(std::move(arr1), 1000, {10, 100});
+    auto t2 = Tensor::CreateTensor(std::move(arr2), 1000, {10, 100});
+
+    auto add_result = TensorOps::operator+(t1, t2);
+    auto mul_result = TensorOps::operator*(t1, t2);
+
+    // Addition should be dominated by large values
+    for (size_t i = 0; i < 1000; ++i) {
+        EXPECT_FLOAT_EQ(add_result->getDataElem(i), 1e20f);
+    }
+
+    // Multiplication should produce 1.0
+    for (size_t i = 0; i < 1000; ++i) {
+        EXPECT_FLOAT_EQ(mul_result->getDataElem(i), 1.0f);
+    }
+}
+
+TEST(TensorExtremeTest, PrecisionLossInChain) {
+    // Test catastrophic cancellation - demonstrates precision limits
+    auto t = Tensor::createScalar(1.0f);
+    auto large = Tensor::createScalar(1e15f);
+
+    // When adding 1.0 to 1e15, the 1.0 is lost due to float precision
+    // float has ~7 significant digits, so 1e15 + 1 = 1e15
+    auto r1 = TensorOps::operator+(t, large);
+    EXPECT_FLOAT_EQ(r1->getDataElem(0), 1e15f); // 1.0 was lost
+
+    auto r2 = TensorOps::operator-(r1, large);
+    EXPECT_FLOAT_EQ(r2->getDataElem(0), 0.0f);  // Results in 0, not 1
+
+    // This demonstrates why order matters in floating-point arithmetic
+    // Better approach: add small numbers first, then large
+    auto small = Tensor::createScalar(1.0f);
+    auto small2 = Tensor::createScalar(1e-5f);
+    auto r3 = TensorOps::operator+(small, small2);
+    auto r4 = TensorOps::operator+(r3, large);
+    auto r5 = TensorOps::operator-(r4, large);
+
+    // Still loses precision but we can verify the behavior
+    EXPECT_GE(r5->getDataElem(0), 0.0f);
+}
+
+TEST(TensorExtremeTest, SymmetricOperations) {
+    auto arr = std::make_unique<float[]>(100);
+    for (size_t i = 0; i < 100; ++i) {
+        arr[i] = static_cast<float>(i) - 50.0f; // -50 to 49
+    }
+    auto t = Tensor::CreateTensor(std::move(arr), 100, {10, 10});
+
+    // t * t should be all positive
+    auto squared = TensorOps::operator*(t, t);
+    for (size_t i = 0; i < 100; ++i) {
+        EXPECT_GE(squared->getDataElem(i), 0.0f);
+        float expected = (static_cast<float>(i) - 50.0f) * (static_cast<float>(i) - 50.0f);
+        EXPECT_FLOAT_EQ(squared->getDataElem(i), expected);
+    }
+}
+
+TEST(TensorExtremeTest, NonUniformShape_7D) {
+    // 7D tensor with varying dimensions
+    std::array<size_t, MAX_RANK> shape{3, 1, 2, 1, 4, 2, 1, 0};
+    auto t = Tensor::createOnes(shape);
+
+    size_t expected_size = 3 * 1 * 2 * 1 * 4 * 2 * 1;
+    EXPECT_EQ(t->getTotalSize(), expected_size);
+
+    auto strides = Tensor::calculate_strides(shape);
+    EXPECT_EQ(strides[0], 16);
+    EXPECT_EQ(strides[1], 16);
+    EXPECT_EQ(strides[2], 8);
+    EXPECT_EQ(strides[3], 8);
+    EXPECT_EQ(strides[4], 2);
+    EXPECT_EQ(strides[5], 1);
+    EXPECT_EQ(strides[6], 1);
+}
+
+TEST(TensorExtremeTest, OperationChainWithTemporaries) {
+    // Test that temporary results don't cause issues
+    auto t1 = Tensor::createScalar(2.0f);
+    auto t2 = Tensor::createScalar(3.0f);
+    auto t3 = Tensor::createScalar(5.0f);
+    auto t4 = Tensor::createScalar(7.0f);
+
+    // Complex expression: ((t1 + t2) * (t3 - t4)) + t1
+    // = ((2+3) * (5-7)) + 2 = (5 * -2) + 2 = -10 + 2 = -8
+    auto temp1 = TensorOps::operator+(t1, t2);
+    auto temp2 = TensorOps::operator-(t3, t4);
+    auto temp3 = TensorOps::operator*(temp1, temp2);
+    auto result = TensorOps::operator+(temp3, t1);
+
+    EXPECT_FLOAT_EQ(result->getDataElem(0), -8.0f);
+}
+
+TEST(TensorExtremeTest, SameShapeDifferentData_1000Ops) {
+    auto t1 = Tensor::createOnes({10, 10, 0, 0, 0, 0, 0, 0});
+    auto t2 = Tensor::createZeros({10, 10, 0, 0, 0, 0, 0, 0});
+
+    for (size_t i = 0; i < 100; ++i) {
+        t2->setDataElem(i, static_cast<float>(i) * 0.1f);
+    }
+
+    // Perform 1000 operations
+    for (int op = 0; op < 1000; ++op) {
+        auto temp = TensorOps::operator+(t1, t2);
+        EXPECT_FLOAT_EQ(temp->getDataElem(0), 1.0f);
+        EXPECT_FLOAT_EQ(temp->getDataElem(50), 6.0f);
+        EXPECT_FLOAT_EQ(temp->getDataElem(99), 10.9f);
+    }
+}
