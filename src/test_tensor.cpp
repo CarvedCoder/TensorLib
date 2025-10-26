@@ -1,10 +1,11 @@
-#include "tensor.h"
-#include "ops.h"
+#include "../include/tensor.h"
+#include "../include/ops.h"
 #include <gtest/gtest.h>
 #include <memory>
 #include <chrono>
 #include <limits>
 #include <string>
+#include <vector>
 
 // ============================================================================
 // SCALAR (0D) TENSOR TESTS
@@ -39,7 +40,8 @@ TEST(TensorTest, ScalarAccessPolicy) {
 TEST(TensorTest, Shape1D_Size5) {
     auto arr    = std::make_unique<float[]>(5);
     for (size_t i = 0; i < 5; ++i) arr[i] = static_cast<float>(i);
-    auto tensor = Tensor::CreateTensor(std::move(arr), 5, {5, 0, 0, 0, 0, 0, 0, 0});
+    std::vector<size_t> shape = {5};
+    auto tensor = Tensor::CreateTensor(std::move(arr), 5, shape);
     EXPECT_EQ(tensor->getTotalSize(), 5);
     EXPECT_EQ(tensor->getShape()[0], 5);
 
@@ -61,7 +63,7 @@ TEST(TensorTest, Shape1D_StrideCalculation) {
 TEST(TensorTest, Shape2D_RowMajor) {
     auto arr    = std::make_unique<float[]>(6);
     for (size_t i = 0; i < 6; ++i) arr[i] = static_cast<float>(i + 1);
-    auto tensor = Tensor::CreateTensor(std::move(arr), 6, {2, 3, 0, 0, 0, 0, 0, 0});
+    auto tensor = Tensor::CreateTensor(std::move(arr), 6, {2, 3});
     EXPECT_EQ(tensor->getTotalSize(), 6);
     EXPECT_EQ(tensor->getShape()[0], 2);
     EXPECT_EQ(tensor->getShape()[1], 3);
@@ -425,3 +427,318 @@ TEST(TensorOpsTest, MismatchExceptionText) {
         EXPECT_TRUE(std::string(e.what()).find("size of tensors don't match") != std::string::npos);
     }
 }
+// ============================================================================
+// TRANSPOSE 2D TESTS
+// ============================================================================
+
+TEST(TensorOpsTest, Transpose2D_Square) {
+    auto arr = std::make_unique<float[]>(9);
+    for (size_t i = 0; i < 9; ++i) arr[i] = static_cast<float>(i);
+    // [[0,1,2], [3,4,5], [6,7,8]]
+    auto t = Tensor::CreateTensor(std::move(arr), 9, {3, 3});
+    auto t_T = TensorOps::transpose2D(t);
+
+    EXPECT_EQ(t_T->getShape()[0], 3);
+    EXPECT_EQ(t_T->getShape()[1], 3);
+    EXPECT_FLOAT_EQ((*t_T)(0, 0), 0.0f);  // [0,0] unchanged
+    EXPECT_FLOAT_EQ((*t_T)(0, 1), 3.0f);  // [0,1] was [1,0]
+    EXPECT_FLOAT_EQ((*t_T)(0, 2), 6.0f);  // [0,2] was [2,0]
+    EXPECT_FLOAT_EQ((*t_T)(1, 0), 1.0f);  // [1,0] was [0,1]
+    EXPECT_FLOAT_EQ((*t_T)(1, 1), 4.0f);  // [1,1] unchanged
+    EXPECT_FLOAT_EQ((*t_T)(2, 2), 8.0f);  // [2,2] unchanged
+}
+
+TEST(TensorOpsTest, Transpose2D_Rectangular) {
+    auto arr = std::make_unique<float[]>(6);
+    for (size_t i = 0; i < 6; ++i) arr[i] = static_cast<float>(i + 1);
+    // [[1,2,3], [4,5,6]]  (2x3)
+    auto t = Tensor::CreateTensor(std::move(arr), 6, {2, 3});
+    auto t_T = TensorOps::transpose2D(t);
+
+    EXPECT_EQ(t_T->getShape()[0], 3);
+    EXPECT_EQ(t_T->getShape()[1], 2);
+    EXPECT_FLOAT_EQ((*t_T)(0, 0), 1.0f);  // [0,0] from [0,0]
+    EXPECT_FLOAT_EQ((*t_T)(0, 1), 4.0f);  // [0,1] from [1,0]
+    EXPECT_FLOAT_EQ((*t_T)(1, 0), 2.0f);  // [1,0] from [0,1]
+    EXPECT_FLOAT_EQ((*t_T)(1, 1), 5.0f);  // [1,1] from [1,1]
+    EXPECT_FLOAT_EQ((*t_T)(2, 0), 3.0f);  // [2,0] from [0,2]
+    EXPECT_FLOAT_EQ((*t_T)(2, 1), 6.0f);  // [2,1] from [1,2]
+}
+
+TEST(TensorOpsTest, Transpose2D_SingleRow) {
+    auto arr = std::make_unique<float[]>(4);
+    for (size_t i = 0; i < 4; ++i) arr[i] = static_cast<float>(i);
+    // [[0,1,2,3]]  (1x4)
+    auto t = Tensor::CreateTensor(std::move(arr), 4, {1, 4});
+    auto t_T = TensorOps::transpose2D(t);
+
+    EXPECT_EQ(t_T->getShape()[0], 4);
+    EXPECT_EQ(t_T->getShape()[1], 1);
+    EXPECT_FLOAT_EQ((*t_T)(0, 0), 0.0f);
+    EXPECT_FLOAT_EQ((*t_T)(1, 0), 1.0f);
+    EXPECT_FLOAT_EQ((*t_T)(2, 0), 2.0f);
+    EXPECT_FLOAT_EQ((*t_T)(3, 0), 3.0f);
+}
+
+TEST(TensorOpsTest, Transpose2D_SingleColumn) {
+    auto arr = std::make_unique<float[]>(4);
+    for (size_t i = 0; i < 4; ++i) arr[i] = static_cast<float>(i);
+    // [[0], [1], [2], [3]]  (4x1)
+    auto t = Tensor::CreateTensor(std::move(arr), 4, {4, 1});
+    auto t_T = TensorOps::transpose2D(t);
+
+    EXPECT_EQ(t_T->getShape()[0], 1);
+    EXPECT_EQ(t_T->getShape()[1], 4);
+    EXPECT_FLOAT_EQ((*t_T)(0, 0), 0.0f);
+    EXPECT_FLOAT_EQ((*t_T)(0, 1), 1.0f);
+    EXPECT_FLOAT_EQ((*t_T)(0, 2), 2.0f);
+    EXPECT_FLOAT_EQ((*t_T)(0, 3), 3.0f);
+}
+
+TEST(TensorOpsTest, Transpose2D_DoubleTranspose) {
+    auto arr = std::make_unique<float[]>(6);
+    for (size_t i = 0; i < 6; ++i) arr[i] = static_cast<float>(i);
+    auto t = Tensor::CreateTensor(std::move(arr), 6, {2, 3});
+    auto t_T = TensorOps::transpose2D(t);
+    auto t_T_T = TensorOps::transpose2D(t_T);
+
+    EXPECT_EQ(t_T_T->getShape()[0], 2);
+    EXPECT_EQ(t_T_T->getShape()[1], 3);
+    for (size_t i = 0; i < 6; ++i) {
+        EXPECT_FLOAT_EQ(t_T_T->getDataElem(i), t->getDataElem(i));
+    }
+}
+
+TEST(TensorOpsTest, Transpose2D_3DTensor_Throws) {
+    auto arr = std::make_unique<float[]>(8);
+    auto t = Tensor::CreateTensor(std::move(arr), 8, {2, 2, 2});
+    EXPECT_THROW(TensorOps::transpose2D(t), std::invalid_argument);
+}
+
+TEST(TensorOpsTest, Transpose2D_1DTensor_Throws) {
+    auto arr = std::make_unique<float[]>(5);
+    auto t = Tensor::CreateTensor(std::move(arr), 5, {5});
+    EXPECT_THROW(TensorOps::transpose2D(t), std::invalid_argument);
+}
+
+// ============================================================================
+// MATMUL TESTS
+// ============================================================================
+
+TEST(TensorOpsTest, Matmul_2x2_Times_2x2) {
+    auto a1 = std::make_unique<float[]>(4);
+    auto a2 = std::make_unique<float[]>(4);
+    // A = [[1,2], [3,4]]
+    a1[0] = 1.0f; a1[1] = 2.0f; a1[2] = 3.0f; a1[3] = 4.0f;
+    // B = [[5,6], [7,8]]
+    a2[0] = 5.0f; a2[1] = 6.0f; a2[2] = 7.0f; a2[3] = 8.0f;
+
+    auto A = Tensor::CreateTensor(std::move(a1), 4, {2, 2});
+    auto B = Tensor::CreateTensor(std::move(a2), 4, {2, 2});
+    auto C = TensorOps::matmul(A, B);
+
+    // C = [[19,22], [43,50]]
+    EXPECT_EQ(C->getShape()[0], 2);
+    EXPECT_EQ(C->getShape()[1], 2);
+    EXPECT_FLOAT_EQ((*C)(0, 0), 19.0f);  // 1*5 + 2*7
+    EXPECT_FLOAT_EQ((*C)(0, 1), 22.0f);  // 1*6 + 2*8
+    EXPECT_FLOAT_EQ((*C)(1, 0), 43.0f);  // 3*5 + 4*7
+    EXPECT_FLOAT_EQ((*C)(1, 1), 50.0f);  // 3*6 + 4*8
+}
+
+TEST(TensorOpsTest, Matmul_2x3_Times_3x2) {
+    auto a1 = std::make_unique<float[]>(6);
+    auto a2 = std::make_unique<float[]>(6);
+    // A = [[1,2,3], [4,5,6]]  (2x3)
+    for (size_t i = 0; i < 6; ++i) a1[i] = static_cast<float>(i + 1);
+    // B = [[7,8], [9,10], [11,12]]  (3x2)
+    for (size_t i = 0; i < 6; ++i) a2[i] = static_cast<float>(i + 7);
+
+    auto A = Tensor::CreateTensor(std::move(a1), 6, {2, 3});
+    auto B = Tensor::CreateTensor(std::move(a2), 6, {3, 2});
+    auto C = TensorOps::matmul(A, B);
+
+    EXPECT_EQ(C->getShape()[0], 2);
+    EXPECT_EQ(C->getShape()[1], 2);
+    EXPECT_FLOAT_EQ((*C)(0, 0), 58.0f);   // 1*7 + 2*9 + 3*11
+    EXPECT_FLOAT_EQ((*C)(0, 1), 64.0f);   // 1*8 + 2*10 + 3*12
+    EXPECT_FLOAT_EQ((*C)(1, 0), 139.0f);  // 4*7 + 5*9 + 6*11
+    EXPECT_FLOAT_EQ((*C)(1, 1), 154.0f);  // 4*8 + 5*10 + 6*12
+}
+
+TEST(TensorOpsTest, Matmul_3x4_Times_4x2) {
+    auto a1 = std::make_unique<float[]>(12);
+    auto a2 = std::make_unique<float[]>(8);
+    for (size_t i = 0; i < 12; ++i) a1[i] = static_cast<float>(i);
+    for (size_t i = 0; i < 8; ++i) a2[i] = 1.0f;
+
+    auto A = Tensor::CreateTensor(std::move(a1), 12, {3, 4});
+    auto B = Tensor::CreateTensor(std::move(a2), 8, {4, 2});
+    auto C = TensorOps::matmul(A, B);
+
+    EXPECT_EQ(C->getShape()[0], 3);
+    EXPECT_EQ(C->getShape()[1], 2);
+    // Each row of C sums elements of corresponding row in A
+    EXPECT_FLOAT_EQ((*C)(0, 0), 6.0f);   // 0+1+2+3
+    EXPECT_FLOAT_EQ((*C)(0, 1), 6.0f);
+    EXPECT_FLOAT_EQ((*C)(1, 0), 22.0f);  // 4+5+6+7
+    EXPECT_FLOAT_EQ((*C)(1, 1), 22.0f);
+    EXPECT_FLOAT_EQ((*C)(2, 0), 38.0f);  // 8+9+10+11
+    EXPECT_FLOAT_EQ((*C)(2, 1), 38.0f);
+}
+
+TEST(TensorOpsTest, Matmul_Identity) {
+    auto a1 = std::make_unique<float[]>(4);
+    auto a2 = std::make_unique<float[]>(4);
+    // A = [[2,3], [4,5]]
+    a1[0] = 2.0f; a1[1] = 3.0f; a1[2] = 4.0f; a1[3] = 5.0f;
+    // I = [[1,0], [0,1]]
+    a2[0] = 1.0f; a2[1] = 0.0f; a2[2] = 0.0f; a2[3] = 1.0f;
+
+    auto A = Tensor::CreateTensor(std::move(a1), 4, {2, 2});
+    auto I = Tensor::CreateTensor(std::move(a2), 4, {2, 2});
+    auto C = TensorOps::matmul(A, I);
+
+    EXPECT_FLOAT_EQ((*C)(0, 0), 2.0f);
+    EXPECT_FLOAT_EQ((*C)(0, 1), 3.0f);
+    EXPECT_FLOAT_EQ((*C)(1, 0), 4.0f);
+    EXPECT_FLOAT_EQ((*C)(1, 1), 5.0f);
+}
+
+TEST(TensorOpsTest, Matmul_MatrixVector) {
+    auto a1 = std::make_unique<float[]>(6);
+    auto a2 = std::make_unique<float[]>(3);
+    // A = [[1,2,3], [4,5,6]]  (2x3)
+    for (size_t i = 0; i < 6; ++i) a1[i] = static_cast<float>(i + 1);
+    // v = [[1], [2], [3]]  (3x1)
+    a2[0] = 1.0f; a2[1] = 2.0f; a2[2] = 3.0f;
+
+    auto A = Tensor::CreateTensor(std::move(a1), 6, {2, 3});
+    auto v = Tensor::CreateTensor(std::move(a2), 3, {3, 1});
+    auto result = TensorOps::matmul(A, v);
+
+    EXPECT_EQ(result->getShape()[0], 2);
+    EXPECT_EQ(result->getShape()[1], 1);
+    EXPECT_FLOAT_EQ((*result)(0, 0), 14.0f);  // 1*1 + 2*2 + 3*3
+    EXPECT_FLOAT_EQ((*result)(1, 0), 32.0f);  // 4*1 + 5*2 + 6*3
+}
+
+TEST(TensorOpsTest, Matmul_VectorMatrix) {
+    auto a1 = std::make_unique<float[]>(3);
+    auto a2 = std::make_unique<float[]>(6);
+    // v = [[1,2,3]]  (1x3)
+    a1[0] = 1.0f; a1[1] = 2.0f; a1[2] = 3.0f;
+    // B = [[1,2], [3,4], [5,6]]  (3x2)
+    for (size_t i = 0; i < 6; ++i) a2[i] = static_cast<float>(i + 1);
+
+    auto v = Tensor::CreateTensor(std::move(a1), 3, {1, 3});
+    auto B = Tensor::CreateTensor(std::move(a2), 6, {3, 2});
+    auto result = TensorOps::matmul(v, B);
+
+    EXPECT_EQ(result->getShape()[0], 1);
+    EXPECT_EQ(result->getShape()[1], 2);
+    EXPECT_FLOAT_EQ((*result)(0, 0), 22.0f);  // 1*1 + 2*3 + 3*5
+    EXPECT_FLOAT_EQ((*result)(0, 1), 28.0f);  // 1*2 + 2*4 + 3*6
+}
+
+TEST(TensorOpsTest, Matmul_ZeroMatrix) {
+    auto A = Tensor::createZeros({2, 3});
+    auto B = Tensor::createOnes({3, 2});
+    auto C = TensorOps::matmul(A, B);
+
+    EXPECT_EQ(C->getShape()[0], 2);
+    EXPECT_EQ(C->getShape()[1], 2);
+    for (size_t i = 0; i < 4; ++i) {
+        EXPECT_FLOAT_EQ(C->getDataElem(i), 0.0f);
+    }
+}
+
+TEST(TensorOpsTest, Matmul_InnerDimensionMismatch_Throws) {
+    auto A = Tensor::createZeros({2, 3});
+    auto B = Tensor::createZeros({4, 2});  // 3 != 4
+    EXPECT_THROW(TensorOps::matmul(A, B), std::invalid_argument);
+}
+
+TEST(TensorOpsTest, Matmul_3DTensor_Throws) {
+    auto arr1 = std::make_unique<float[]>(8);
+    auto arr2 = std::make_unique<float[]>(8);
+    auto A = Tensor::CreateTensor(std::move(arr1), 8, {2, 2, 2});
+    auto B = Tensor::CreateTensor(std::move(arr2), 8, {2, 2, 2});
+    EXPECT_THROW(TensorOps::matmul(A, B), std::invalid_argument);
+}
+
+TEST(TensorOpsTest, Matmul_1DTensor_Throws) {
+    auto arr1 = std::make_unique<float[]>(3);
+    auto arr2 = std::make_unique<float[]>(3);
+    auto A = Tensor::CreateTensor(std::move(arr1), 3, {3});
+    auto B = Tensor::CreateTensor(std::move(arr2), 3, {3});
+    EXPECT_THROW(TensorOps::matmul(A, B), std::invalid_argument);
+}
+
+TEST(TensorOpsTest, Matmul_LargeMatrix) {
+    auto A = Tensor::createOnes({100, 50});
+    auto B = Tensor::createOnes({50, 75});
+    auto C = TensorOps::matmul(A, B);
+
+    EXPECT_EQ(C->getShape()[0], 100);
+    EXPECT_EQ(C->getShape()[1], 75);
+    // Each element should be 50 (sum of 50 ones)
+    EXPECT_FLOAT_EQ((*C)(0, 0), 50.0f);
+    EXPECT_FLOAT_EQ((*C)(50, 37), 50.0f);
+    EXPECT_FLOAT_EQ((*C)(99, 74), 50.0f);
+}
+
+TEST(TensorOpsTest, Matmul_NonCommutative) {
+    auto a1 = std::make_unique<float[]>(6);
+    auto a2 = std::make_unique<float[]>(6);
+    // A = [[1,2,3], [4,5,6]]  (2x3)
+    for (size_t i = 0; i < 6; ++i) a1[i] = static_cast<float>(i + 1);
+    // B = [[1,2], [3,4], [5,6]]  (3x2)
+    for (size_t i = 0; i < 6; ++i) a2[i] = static_cast<float>(i + 1);
+
+    auto A = Tensor::CreateTensor(std::move(a1), 6, {2, 3});
+    auto B = Tensor::CreateTensor(std::move(a2), 6, {3, 2});
+
+    auto AB = TensorOps::matmul(A, B);  // 2x2
+    auto BA = TensorOps::matmul(B, A);  // 3x3
+
+    EXPECT_EQ(AB->getShape()[0], 2);
+    EXPECT_EQ(AB->getShape()[1], 2);
+    EXPECT_EQ(BA->getShape()[0], 3);
+    EXPECT_EQ(BA->getShape()[1], 3);
+
+    // Verify they're different
+    EXPECT_NE(AB->getTotalSize(), BA->getTotalSize());
+}
+
+TEST(TensorOpsTest, Matmul_SingleElement) {
+    auto a1 = std::make_unique<float[]>(1);
+    auto a2 = std::make_unique<float[]>(1);
+    a1[0] = 3.0f;
+    a2[0] = 7.0f;
+
+    auto A = Tensor::CreateTensor(std::move(a1), 1, {1, 1});
+    auto B = Tensor::CreateTensor(std::move(a2), 1, {1, 1});
+    auto C = TensorOps::matmul(A, B);
+
+    EXPECT_EQ(C->getShape()[0], 1);
+    EXPECT_EQ(C->getShape()[1], 1);
+    EXPECT_FLOAT_EQ((*C)(0, 0), 21.0f);
+}
+
+TEST(TensorOpsTest, Matmul_NegativeValues) {
+    auto a1 = std::make_unique<float[]>(4);
+    auto a2 = std::make_unique<float[]>(4);
+    a1[0] = -1.0f; a1[1] = 2.0f; a1[2] = -3.0f; a1[3] = 4.0f;
+    a2[0] = 1.0f; a2[1] = -2.0f; a2[2] = 3.0f; a2[3] = -4.0f;
+
+    auto A = Tensor::CreateTensor(std::move(a1), 4, {2, 2});
+    auto B = Tensor::CreateTensor(std::move(a2), 4, {2, 2});
+    auto C = TensorOps::matmul(A, B);
+
+    EXPECT_FLOAT_EQ((*C)(0, 0), 5.0f);    // -1*1 + 2*3
+    EXPECT_FLOAT_EQ((*C)(0, 1), -6.0f);   // -1*(-2) + 2*(-4)
+    EXPECT_FLOAT_EQ((*C)(1, 0), 9.0f);    // -3*1 + 4*3
+    EXPECT_FLOAT_EQ((*C)(1, 1), -10.0f);  // -3*(-2) + 4*(-4)
+}
+

@@ -8,6 +8,8 @@ namespace TensorOps{
     Tensor::Tensorptr operator+(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2);
     Tensor::Tensorptr operator-(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2);
     Tensor::Tensorptr operator*(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2);
+    Tensor::Tensorptr matmul(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2);
+    Tensor::Tensorptr transpose2D(const std::shared_ptr<Tensor>&t);
 }
 #endif // OPS_H
     

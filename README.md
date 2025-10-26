@@ -1,6 +1,6 @@
 ## MiniTensor – A Lightweight C++20 Tensor Library
 
-Made it so that i can use it for my other projects
+Made it so that I can use it for my other projects
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
