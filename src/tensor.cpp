@@ -1,6 +1,8 @@
 #include "../include/tensor.h"
+
+#include <complex>
 #include <iostream>
-#include <ostream>
+#include <random>
 #include <stdexcept>
 
 
@@ -9,40 +11,44 @@ Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size, const std
     data(std::move(input_data)),shape(shape),stride(stride),total_size(size) {}
 
 Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, const size_t size,
-                                       const std::array<size_t, MAX_RANK> &shape) {
+                                       const std::array<size_t, MAX_RANK> &shape,bool require_grad) {
     size_t expected_size = 1;
     for (const auto dim:shape) {
         if (dim == 0) break;
         expected_size *= dim;
     }
     if (expected_size != size){
-        throw std::invalid_argument("shape and data size don't match or -ve int passed in shape");
+        throw std::invalid_argument("shape and data size don't match or -ve int passed in shape while creating a new tensor");
     }
+    const size_t m_size = expected_size;
     const auto stride = calculate_strides(shape);
-    auto tensor = Tensorptr(new Tensor(std::move(input_data),size,shape,stride));
+    if (require_grad){}
+    auto tensor = Tensorptr(new Tensor(std::move(input_data),m_size,shape,stride));
     return tensor;
 }
 
-Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, size_t size,
-                                       const std::vector<size_t> &shape_vec) {
+Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, const size_t size,
+                                       const std::vector<size_t> &shape_vec,bool require_grad) {
     std::array<size_t,MAX_RANK> shape{};
     if (shape_vec.size() > MAX_RANK) std::cerr << "shape vec provided is greater than 8";
     size_t i = 0;
     for (const auto dim : shape_vec) {
         shape[i++] = dim;
     }
+    if (require_grad){}
     return CreateTensor(std::move(input_data),size,shape);
 }
 
 
-Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, size_t size,
-                                       const std::initializer_list<size_t> &shape_list) {
+Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, const size_t size,
+                                       const std::initializer_list<size_t> &shape_list,bool require_grad) {
     std::array<size_t,MAX_RANK> shape{};
     size_t i = 0;
     if (shape_list.size() > MAX_RANK) std::cerr << "shape list provided is greater than 8";
     for (const auto dim : shape_list) {
         shape[i++] = dim;
     }
+    if (require_grad){}
     return CreateTensor(std::move(input_data),size,shape);
 }
 
@@ -107,6 +113,74 @@ Tensor::Tensorptr Tensor::createOnes(const std::array<size_t,MAX_RANK> &shape) {
     return CreateTensor(std::move(arr), total_size, shape);
 }
 
+Tensor::Tensorptr Tensor::createRandTensor(const std::initializer_list<size_t> &shape_list, const InitType mode) {
+    std::array<size_t,MAX_RANK> shape{};
+    size_t i = 0;
+    for (const auto dim:shape_list) {
+        shape[i++] = dim;
+    }
+    return createRandTensor(shape,mode);
+}
+
+Tensor::Tensorptr Tensor::createRandTensor(const std::array<size_t, MAX_RANK> &shape,const InitType mode) {
+    size_t total_size = 1,rank = 0;
+    for (const auto dim : shape) {
+        if (dim == 0) break;
+        total_size *= dim;
+        rank++;
+    }
+    const size_t feature_out = shape[0];
+    const size_t feature_in = shape[rank-1];
+    auto arr = std::make_unique<float[]>(total_size);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    switch (mode) {
+        case He: {
+            const float limit = std::sqrt(2.0f/static_cast<float>(feature_in));
+            std::normal_distribution<float> dist(0.0f,limit);
+            for (size_t i = 0; i < total_size;i++) {
+                arr[i] = dist(gen);
+            }
+        }
+            break;
+
+        case Xavier: {
+            const float limit = std::sqrt(2.0f/static_cast<float>(feature_in+feature_out));
+            std::normal_distribution<float> dist(0.0f,limit);
+            for (size_t i = 0; i < total_size;i++) {
+                arr[i] = dist(gen);
+            }
+        }
+            break;
+
+        case HeUniform: {
+            const float limit = std::sqrt(6.0f/static_cast<float>(feature_in));
+            std::uniform_real_distribution<float> dist(-limit,limit);
+            for (size_t i = 0; i < total_size;i++) {
+                arr[i] = dist(gen);
+            }
+        }
+            break;
+
+        case XavierUniform: {
+            const float limit = std::sqrt(6.0f/static_cast<float>(feature_in+feature_out));
+            std::uniform_real_distribution<float> dist (-limit,limit);
+            for (size_t i = 0; i < total_size;i++) {
+                arr[i] = dist(gen);
+            }
+        }
+            break;
+
+        default:
+            std::normal_distribution<float> dist(0.00f,0.01f);
+            for (size_t i = 0; i < total_size;i++) {
+                arr[i] = dist(gen);
+            }
+        }
+    return CreateTensor(std::move(arr),total_size,shape);
+}
+
 Tensor::Tensorptr Tensor::createZeros(const std::array<size_t,MAX_RANK>& shape) {
     bool is_scalar = true;
     for (const auto dim : shape) {
@@ -161,3 +235,9 @@ size_t Tensor::getRank() const {
     }
     return rank;
 }
+
+std::array<size_t,MAX_RANK> Tensor::getStrides() const {
+    return stride;
+}
+
+void Tensor::zeroGrad() const {std::fill_n(grad.get(),total_size,0.0f);}

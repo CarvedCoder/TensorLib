@@ -1,10 +1,11 @@
 #include "../include/ops.h"
+#include <complex>
 #include "../include/tensor.h"
 
 namespace TensorOps{
     Tensor::Tensorptr operator+(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2){
         if(t1->getShape() != t2->getShape()){
-            throw std::invalid_argument("size of tensors don't match for add operator");
+            throw std::invalid_argument("shape of tensors don't match for add operator");
         }
         auto result = Tensor::createZeros(t1->getShape());
         if(t1->getShape().empty()){
@@ -20,7 +21,7 @@ namespace TensorOps{
     
     Tensor::Tensorptr operator-(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2){
         if(t1->getShape() != t2->getShape()){
-            throw std::invalid_argument("size of tensors don't match for sub operator");
+            throw std::invalid_argument("shape of tensors don't match for sub operator");
         }
         auto result = Tensor::createZeros(t1->getShape());
         if(t1->getShape().empty()){
@@ -35,7 +36,7 @@ namespace TensorOps{
     }
     Tensor::Tensorptr operator*(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2){
         if(t1->getShape() != t2->getShape()){
-            throw std::invalid_argument("size of tensors don't match for mul operator");
+            throw std::invalid_argument("shape of tensors don't match for mul operator");
         }
         auto result = Tensor::createZeros(t1->getShape());
         if(t1->getShape().empty()){
@@ -65,6 +66,33 @@ namespace TensorOps{
         }
         return T;
     }
+
+    float sigmoid(const float input_data) {
+        return 1/(1+std::exp(-input_data));
+    }
+
+    float relu(const float input_data) {
+        return input_data > 0 ? input_data : 0.0f;
+    }
+
+    float leakyRelu(const float input_data) {
+        return input_data > 0? input_data : 0.01f;
+    }
+
+    float m_tanh(const float input_data) {
+        return std::tanh(input_data);
+    }
+    float calcCost(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2,const LossType mode) {
+        if (t1->getShape()!= t2->getShape()) throw std::invalid_argument ("Tensor shape not same for calcCost");
+        float result = 0;
+        const size_t size = t1->getTotalSize();
+        for (size_t i = 0; i < size;i++) {
+            const float diff =(*t1)(i)-(*t2)(i);
+            result += diff * diff;
+        }
+        return mode == SSE ? result : result/static_cast<float>(size);
+    }
+
     Tensor::Tensorptr matmul(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2) {
         const auto r1 = t1->getRank();
         const auto r2 = t2->getRank();

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(minitensor VERSION 0.0.1 LANGUAGES CXX)
+project(minitensor VERSION 3 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -29,12 +29,13 @@ FetchContent_MakeAvailable(googletest)
 add_library(tensor_lib STATIC
         src/ops.cpp
         src/tensor.cpp
+        src/autograd.cpp
 )
 target_include_directories(tensor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ---------------- test executable ------------------
 enable_testing()
-add_executable(tensor_test src/test_tensor.cpp)   # rename from main.cpp
+add_executable(tensor_test src/test_tensor.cpp)
 target_link_libraries(tensor_test PRIVATE tensor_lib GTest::gtest GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(tensor_test)
@@ -42,3 +43,6 @@ gtest_discover_tests(tensor_test)
 # ---------------- optional bench -------------------
 # add_executable(bench bench.cpp)
 # target_link_libraries(bench PRIVATE tensor_lib)
+
+add_executable(main src/main.cpp)
+target_link_libraries(main PRIVATE tensor_lib)

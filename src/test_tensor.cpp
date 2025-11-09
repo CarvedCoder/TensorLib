@@ -7,9 +7,7 @@
 #include <string>
 #include <vector>
 
-// ============================================================================
 // SCALAR (0D) TENSOR TESTS
-// ============================================================================
 
 TEST(TensorTest, ScalarCreation) {
     auto scalar = Tensor::createScalar(42.0f);
