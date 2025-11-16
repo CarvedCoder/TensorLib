@@ -124,7 +124,6 @@ ctest --test-dir build --output-on-failure
 **Expected output:**
 ```
 100% tests passed, 0 tests failed out of 101
-Total Test time (real) = 0.21 sec
 ```
 
 ### Development Build (with sanitizers)
