@@ -1,14 +1,12 @@
 #include "../include/tensor.h"
-
-#include <complex>
 #include <iostream>
 #include <random>
 #include <stdexcept>
 
 
-Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size, const std::array<size_t, MAX_RANK> &shape,
-    const std::array<size_t, MAX_RANK> &stride):
-    data(std::move(input_data)),shape(shape),stride(stride),total_size(size) {}
+Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size, const std::array<size_t, MAX_RANK> &shape_in,
+    const std::array<size_t, MAX_RANK> &stride_in):
+    data(std::move(input_data)),shape(shape_in),stride(stride_in),total_size(size) {}
 
 Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, const size_t size,
                                        const std::array<size_t, MAX_RANK> &shape,bool require_grad) {

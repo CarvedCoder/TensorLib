@@ -6,7 +6,7 @@
 #include <limits>
 #include <string>
 #include <vector>
-
+#include <cmath>
 // SCALAR (0D) TENSOR TESTS
 
 TEST(TensorTest, ScalarCreation) {
@@ -422,7 +422,7 @@ TEST(TensorOpsTest, MismatchExceptionText) {
         TensorOps::operator+(a, b);
         FAIL() << "should have thrown";
     } catch (const std::invalid_argument& e) {
-        EXPECT_TRUE(std::string(e.what()).find("size of tensors don't match") != std::string::npos);
+        EXPECT_TRUE(std::string(e.what()).find("shape of tensors don't match for add operator") != std::string::npos);
     }
 }
 // ============================================================================
