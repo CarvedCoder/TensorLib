@@ -1,10 +1,12 @@
 #ifndef TENSOR_H
 #define TENSOR_H
-#include <algorithm>
 #include <array>
 #include <initializer_list>
 #include <memory>
 #include <vector>
+#include <iostream>
+#include <random>
+#include <stdexcept>
 constexpr int MAX_RANK =8;
 enum InitType {Normal,He,Xavier,XavierUniform,HeUniform};
 class Tensor : public std::enable_shared_from_this<Tensor> {
@@ -25,7 +27,7 @@ private:
 public:
     using Tensorptr = std::shared_ptr<Tensor>;
 
-    static Tensorptr CreateTensor(std::unique_ptr<float[]> input_data,
+    static Tensorptr createTensor(std::unique_ptr<float[]> input_data,
                                   size_t size,
                                   const std::array<size_t, MAX_RANK> &shape,
                                   bool require_grad = false);
@@ -41,7 +43,7 @@ public:
                                   bool require_grad = false);
 
 
-    static std::array<size_t, 8> calculate_strides(const std::array<size_t, MAX_RANK> &shape);
+    static std::array<size_t, MAX_RANK> calculateStrides(const std::array<size_t, MAX_RANK> &shape);
     static Tensorptr createScalar(float data);
     static Tensorptr createZeros(const std::initializer_list<size_t>&shape_list);
     static Tensorptr createZeros(const std::array<size_t,MAX_RANK>& shape);

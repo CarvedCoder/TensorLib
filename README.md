@@ -1,4 +1,4 @@
-# MiniTensor — A Lightweight C++20 Tensor Library
+# TensorLib — A Lightweight C++20 Tensor Library
 
 > A high-performance, zero-dependency tensor library built for understanding ML systems from the ground up.
 
@@ -12,7 +12,7 @@
 
 ## 🎯 Overview
 
-**MiniTensor** is a tensor library implementing NumPy-compatible memory layouts with modern C++20 features. Designed for educational purposes and lightweight ML projects, it provides clean abstractions without sacrificing performance fundamentals.
+**TensorLib** is a tensor library implementing NumPy-compatible memory layouts with modern C++20 features. Designed for educational purposes and lightweight ML projects, it provides clean abstractions without sacrificing performance fundamentals.
 
 ### Key Highlights
 
@@ -27,20 +27,19 @@
 
 ## ✨ Features
 
-| Feature                      | Status | Description                                              |
-| ---------------------------- | ------ | -------------------------------------------------------- |
-| **Zero-copy construction**   | ✅      | Takes `unique_ptr<float[]>` — no unnecessary memcpy      |
-| **Flexible dimensionality**  | ✅      | Scalar (0-D) to 8-D tensors with `MAX_RANK = 8`         |
-| **NumPy strides**            | ✅      | Row-major layout calculated exactly like NumPy           |
-| **Element-wise operations**  | ✅      | `+`, `-`, `*` (Hadamard product)                         |
-| **Matrix multiplication**    | ✅      | Optimized i-k-j loop ordering for cache efficiency      |
-| **Matrix transpose**         | ✅      | 2D transpose with proper memory layout                   |
-| **Bounds checking**          | ✅      | `operator()` throws `std::out_of_range` on violations    |
-| **Factory methods**          | ✅      | `createZeros`, `createOnes`, `createScalar`              |
-| **Memory alignment**         | ✅      | 64-byte aligned data for SIMD and cache optimization     |
-| **Build system**             | ✅      | Modern CMake with FetchContent, sanitizers in Debug      |
-| **Strict compilation**       | ✅      | `-Wall -Wextra -Wpedantic -Werror` (GCC/Clang), `/W4 /WX` (MSVC) |
-| **UB detection**             | ✅      | AddressSanitizer & UBSanitizer auto-enabled in Debug     |
+| Feature                     | Status | Description                                                      |
+| --------------------------- | ------ | ---------------------------------------------------------------- |
+| **Zero-copy construction**  | ✅     | Takes `unique_ptr<float[]>` — no unnecessary memcpy              |
+| **Flexible dimensionality** | ✅     | Scalar (0-D) to 8-D tensors with `MAX_RANK = 8`                  |
+| **NumPy strides**           | ✅     | Row-major layout calculated exactly like NumPy                   |
+| **Element-wise operations** | ✅     | `+`, `-`, `*` (Hadamard product)                                 |
+| **Matrix multiplication**   | ✅     | Optimized i-k-j loop ordering for cache efficiency               |
+| **Matrix transpose**        | ✅     | 2D transpose with proper memory layout                           |
+| **Bounds checking**         | ✅     | `operator()` throws `std::out_of_range` on violations            |
+| **Factory methods**         | ✅     | `createZeros`, `createOnes`, `createScalar`                      |
+| **Build system**            | ✅     | Modern CMake with FetchContent, sanitizers in Debug              |
+| **Strict compilation**      | ✅     | `-Wall -Wextra -Wpedantic -Werror` (GCC/Clang), `/W4 /WX` (MSVC) |
+| **UB detection**            | ✅     | AddressSanitizer & UBSanitizer auto-enabled in Debug             |
 
 ---
 
@@ -49,31 +48,36 @@
 **101 tests** organized into comprehensive suites validating correctness, performance, and edge cases:
 
 ### Core Tensor Tests (42 tests)
+
 - **Shape & stride correctness**: 1-D through 8-D tensors, mixed dimensions
 - **Element access**: Flat indexing vs multi-dimensional equivalence
-- **Memory management**: 64-byte alignment, move semantics, smart pointers
+- **Memory management**: move semantics, smart pointers
 - **Boundary conditions**: Out-of-bounds detection, overflow handling
 - **Performance validation**: 1M element initialization < 50ms
 
 ### Element-Wise Operations (12 tests)
+
 - **Arithmetic ops**: Addition, subtraction, multiplication with full verification
 - **Shape validation**: Mismatched shapes throw `invalid_argument`
 - **Numerical edge cases**: IEEE-754 special values (inf, nan)
 - **Aliasing safety**: `t * t` creates new tensor without mutation
 
 ### Matrix Operations (8 tests)
+
 - **Matrix multiplication**: Correctness on various sizes (2×2 to large matrices)
 - **Transpose**: 2D matrix transposition with stride verification
 - **Error handling**: Rank and dimension mismatch detection
 - **Cache optimization**: i-k-j loop ordering validated
 
 ### Intensive Numerical Tests (20 tests)
+
 - **Chained operations**: Numerical stability through multiple ops
 - **Large-scale computations**: 100k+ element operations with performance benchmarks
 - **High-dimensional tensors**: 8-D tensor arithmetic
 - **Repeated operations**: Memory stability over 1000 iterations
 
 ### Floating-Point Edge Cases (8 tests)
+
 - **Denormal numbers**: Subnormal value handling
 - **Overflow/underflow**: Max float values and infinity arithmetic
 - **NaN propagation**: Correct NaN behavior across all operations
@@ -81,16 +85,19 @@
 - **Mixed magnitudes**: 1e20 + 1e-20 precision tests
 
 ### Memory & Boundary Tests (6 tests)
+
 - **Edge dimensions**: 1, 2, primes, powers of 2, large primes (101×103)
 - **Boundary access**: Corner element validation in 2D/3D tensors
 - **Out-of-bounds**: SIZE_MAX and large index validation
 
 ### Mathematical Properties (4 tests)
+
 - **Commutativity**: Addition and multiplication order independence
 - **Associativity**: Operation grouping equivalence
 - **Distributive property**: a × (b + c) = a×b + a×c
 
 ### Performance Benchmarks (1 test)
+
 - **Sequential access**: 1M element write operations
 - **Random access**: 10k 2D indexing operations
 
@@ -101,6 +108,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - C++20 compatible compiler (GCC 10+, Clang 12+, MSVC 2019+)
 - CMake 3.25+
 
@@ -122,8 +130,9 @@ ctest --test-dir build --output-on-failure
 ```
 
 **Expected output:**
+
 ```
-100% tests passed, 0 tests failed out of 101
+100% tests passed, 0 tests failed out of 100
 ```
 
 ### Development Build (with sanitizers)
@@ -248,6 +257,7 @@ This library is designed to teach:
 ## 🔮 Roadmap
 
 ### Planned Features
+
 - [ ] Broadcasting for element-wise operations
 - [ ] Automatic differentiation (autodiff) for backpropagation
 - [ ] Reduction operations (sum, mean, max along axes)
@@ -257,6 +267,7 @@ This library is designed to teach:
 - [ ] SIMD vectorization (AVX2/AVX-512)
 
 ### Performance Optimizations
+
 - [ ] Loop tiling for better cache utilization
 - [ ] Parallel operations using OpenMP/TBB
 - [ ] In-place operations to reduce allocations
@@ -303,6 +314,7 @@ Built with ❤️ for learning ML systems from first principles.
 ## 📚 References
 
 For understanding the concepts:
+
 - [NumPy internals documentation](https://numpy.org/doc/stable/reference/internals.html)
 - [Efficient C++ Performance Programming](https://www.agner.org/optimize/)
 - [What Every Computer Scientist Should Know About Floating-Point Arithmetic](https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html)

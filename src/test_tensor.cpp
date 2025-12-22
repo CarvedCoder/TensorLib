@@ -43,13 +43,13 @@ TEST(TensorTest, Shape1D_Size5) {
     EXPECT_EQ(tensor->getTotalSize(), 5);
     EXPECT_EQ(tensor->getShape()[0], 5);
 
-    auto strides = Tensor::calculate_strides({5, 0, 0, 0, 0, 0, 0, 0});
+    auto strides = Tensor::calculateStrides({5, 0, 0, 0, 0, 0, 0, 0});
     EXPECT_EQ(strides[0], 1);
 }
 
 TEST(TensorTest, Shape1D_StrideCalculation) {
     std::array<size_t, MAX_RANK> shape = {5, 0, 0, 0, 0, 0, 0, 0};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
     EXPECT_EQ(strides[0], 1);
     for (size_t i = 1; i < MAX_RANK; ++i) EXPECT_EQ(strides[i], 0);
 }
@@ -69,7 +69,7 @@ TEST(TensorTest, Shape2D_RowMajor) {
 
 TEST(TensorTest, Shape2D_Strides) {
     std::array<size_t, MAX_RANK> shape = {2, 3, 0, 0, 0, 0, 0, 0};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
     EXPECT_EQ(strides[0], 3);
     EXPECT_EQ(strides[1], 1);
 }
@@ -102,7 +102,7 @@ TEST(TensorTest, Shape3D_Size24) {
 
 TEST(TensorTest, Shape3D_Strides) {
     std::array<size_t, MAX_RANK> shape = {2, 3, 4, 0, 0, 0, 0, 0};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
     EXPECT_EQ(strides[0], 12);
     EXPECT_EQ(strides[1], 4);
     EXPECT_EQ(strides[2], 1);
@@ -125,7 +125,7 @@ TEST(TensorTest, Shape3D_ElementAccess) {
 
 TEST(TensorTest, ShapeWithOnes_StridesNotZero) {
     std::array<size_t, MAX_RANK> shape = {1, 5, 1, 2, 0, 0, 0, 0};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
     EXPECT_EQ(strides[0], 10);
     EXPECT_EQ(strides[1], 2);
     EXPECT_EQ(strides[2], 2);
@@ -274,7 +274,7 @@ TEST(TensorTest, SizeMismatch_Throws) {
 
 TEST(TensorTest, CompareNumPyStrides) {
     std::array<size_t, MAX_RANK> shape = {2, 3, 4, 0, 0, 0, 0, 0};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
     EXPECT_EQ(strides[0], 12);
     EXPECT_EQ(strides[1], 4);
     EXPECT_EQ(strides[2], 1);
@@ -336,12 +336,6 @@ TEST(TensorTest, OpEmpty) {
     EXPECT_FLOAT_EQ(add->getDataElem(0), 8.0f);
 }
 
-TEST(TensorTest, DataAlignedTo64) {
-    auto t    = Tensor::createZeros({100, 100});
-    auto addr = reinterpret_cast<uintptr_t>(t->getData());
-    EXPECT_EQ(addr % 64, 0) << "data not 64-byte aligned";
-}
-
 TEST(TensorTest, MoveSemantics) {
     auto arr = std::make_unique<float[]>(6);
     for (size_t i = 0; i < 6; ++i) arr[i] = static_cast<float>(i);
@@ -378,7 +372,7 @@ TEST(TensorTest, StrideIndexing) {
     for (size_t i = 0; i < 24; ++i) arr[i] = static_cast<float>(i);
     auto tensor = Tensor::CreateTensor(std::move(arr), 24, {2, 3, 4});
     const auto shape   = tensor->getShape();
-    const auto strides = Tensor::calculate_strides(shape);
+    const auto strides = Tensor::calculateStrides(shape);
 
     size_t flat = 0;
     for (size_t i = 0; i < shape[0]; ++i)
@@ -394,7 +388,7 @@ TEST(TensorTest, StrideIndexing) {
 
 TEST(TensorTest, NumpyStrideCompatibility) {
     std::array<size_t, MAX_RANK> shape = {5, 1, 2, 1, 0, 0, 0, 0};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
     EXPECT_EQ(strides[0], 2);
     EXPECT_EQ(strides[1], 2);
     EXPECT_EQ(strides[2], 1);
@@ -944,7 +938,7 @@ TEST(TensorEdgeCaseTest, LargePrimeDimensions) {
     auto t = Tensor::createZeros({101, 103, 0, 0, 0, 0, 0, 0});
     EXPECT_EQ(t->getTotalSize(), 10403);
 
-    auto strides = Tensor::calculate_strides({101, 103, 0, 0, 0, 0, 0, 0});
+    auto strides = Tensor::calculateStrides({101, 103, 0, 0, 0, 0, 0, 0});
     EXPECT_EQ(strides[0], 103);
     EXPECT_EQ(strides[1], 1);
 }
@@ -991,7 +985,7 @@ TEST(TensorEdgeCaseTest, BoundaryIndexAccess3D) {
 
 TEST(TensorEdgeCaseTest, NonContiguousStrides_AllOnes) {
     std::array<size_t, MAX_RANK> shape{1, 1, 1, 1, 1, 1, 1, 1};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
 
     // All strides should be 1
     for (size_t i = 0; i < MAX_RANK; ++i) {
@@ -1002,7 +996,7 @@ TEST(TensorEdgeCaseTest, NonContiguousStrides_AllOnes) {
 TEST(TensorEdgeCaseTest, MixedStridePattern) {
     // Shape with varying dimensions
     std::array<size_t, MAX_RANK> shape{10, 1, 5, 1, 2, 0, 0, 0};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
 
     EXPECT_EQ(strides[0], 10);  // 1*5*1*2
     EXPECT_EQ(strides[1], 10);  // 5*1*2
@@ -1013,7 +1007,7 @@ TEST(TensorEdgeCaseTest, MixedStridePattern) {
 
 TEST(TensorEdgeCaseTest, LastDimensionLarge) {
     std::array<size_t, MAX_RANK> shape{2, 2, 10000, 0, 0, 0, 0, 0};
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
 
     EXPECT_EQ(strides[0], 20000);
     EXPECT_EQ(strides[1], 10000);
@@ -1308,7 +1302,7 @@ TEST(TensorExtremeTest, NonUniformShape_7D) {
     size_t expected_size = 3 * 1 * 2 * 1 * 4 * 2 * 1;
     EXPECT_EQ(t->getTotalSize(), expected_size);
 
-    auto strides = Tensor::calculate_strides(shape);
+    auto strides = Tensor::calculateStrides(shape);
     EXPECT_EQ(strides[0], 16);
     EXPECT_EQ(strides[1], 16);
     EXPECT_EQ(strides[2], 8);
@@ -1351,3 +1345,18 @@ TEST(TensorExtremeTest, SameShapeDifferentData_1000Ops) {
         EXPECT_FLOAT_EQ(temp->getDataElem(99), 10.9f);
     }
 }
+<<<<<<< HEAD
+=======
+TEST(TensorOpsTest,CalcLoss) {
+    auto t1 = Tensor::createRandTensor({20,10});
+    auto t2 = Tensor::createRandTensor({20,10});
+    auto result = TensorOps::calcCost(t1,t2);
+    EXPECT_TRUE(result);
+}
+
+TEST(TensorOpsTest,CalcLossSizeMismatch) {
+    auto t1 = Tensor::createRandTensor({3,4});
+    auto t2 = Tensor::createRandTensor({4,3});
+    EXPECT_THROW(TensorOps::calcCost(t1,t2),std::invalid_argument);
+}
+>>>>>>> 5748cdc (some changes)

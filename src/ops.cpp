@@ -1,5 +1,4 @@
 #include "../include/ops.h"
-#include <complex>
 #include "../include/tensor.h"
 
 namespace TensorOps{
@@ -95,8 +94,7 @@ namespace TensorOps{
 
     Tensor::Tensorptr matmul(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2) {
         const auto r1 = t1->getRank();
-        const auto r2 = t2->getRank();
-        if ( r1 != r2) throw std::invalid_argument("Rank is not the same for matmul");
+        if ( r1 != t2->getRank()) throw std::invalid_argument("Rank is not the same for matmul");
         if (r1 > 2) throw std::invalid_argument("Rank input is greater than 2 in matmul");
         const auto s1 = t1->getShape();
         const auto s2 = t2->getShape();

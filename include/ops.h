@@ -14,7 +14,7 @@ namespace TensorOps{
     float relu(float input_data);
     float leakyRelu(float input_data);
     float m_tanh(float input_data);
-    float calcCost(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2,LossType mode);
+    float calcCost(const std::shared_ptr<Tensor>&t1,const std::shared_ptr<Tensor>&t2,LossType mode = SSE);
 }
 #endif // OPS_H
     

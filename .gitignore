@@ -2,3 +2,6 @@ build/
 cmake-build-debug/
 cmake-build-release/
 .idea/
+.cache/
+.DS_Store
+

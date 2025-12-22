@@ -1,4 +1,5 @@
 #include "../include/tensor.h"
+<<<<<<< HEAD
 #include <iostream>
 #include <random>
 #include <stdexcept>
@@ -7,8 +8,14 @@
 Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size, const std::array<size_t, MAX_RANK> &shape_in,
     const std::array<size_t, MAX_RANK> &stride_in):
     data(std::move(input_data)),shape(shape_in),stride(stride_in),total_size(size) {}
+=======
 
-Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, const size_t size,
+Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size, const std::array<size_t, MAX_RANK> &shape,
+    const std::array<size_t, MAX_RANK> &stride):
+    data(std::move(input_data)),shape(shape),stride(stride),total_size(size) {}
+>>>>>>> 5748cdc (some changes)
+
+Tensor::Tensorptr Tensor::createTensor(std::unique_ptr<float[]> input_data, const size_t size,
                                        const std::array<size_t, MAX_RANK> &shape,bool require_grad) {
     size_t expected_size = 1;
     for (const auto dim:shape) {
@@ -18,10 +25,10 @@ Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, cons
     if (expected_size != size){
         throw std::invalid_argument("shape and data size don't match or -ve int passed in shape while creating a new tensor");
     }
-    const size_t m_size = expected_size;
-    const auto stride = calculate_strides(shape);
+    const size_t f_size = expected_size;
+    const auto stride = calculateStrides(shape);
     if (require_grad){}
-    auto tensor = Tensorptr(new Tensor(std::move(input_data),m_size,shape,stride));
+    auto tensor = Tensorptr(new Tensor(std::move(input_data),f_size,shape,stride));
     return tensor;
 }
 
@@ -34,7 +41,7 @@ Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, cons
         shape[i++] = dim;
     }
     if (require_grad){}
-    return CreateTensor(std::move(input_data),size,shape);
+    return createTensor(std::move(input_data),size,shape);
 }
 
 
@@ -47,10 +54,10 @@ Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data, cons
         shape[i++] = dim;
     }
     if (require_grad){}
-    return CreateTensor(std::move(input_data),size,shape);
+    return createTensor(std::move(input_data),size,shape);
 }
 
-std::array<size_t, 8> Tensor::calculate_strides(const std::array<size_t, MAX_RANK> &shape) {
+std::array<size_t, MAX_RANK> Tensor::calculateStrides(const std::array<size_t, MAX_RANK> &shape) {
     std::array<size_t,MAX_RANK> strides{};
     if (shape[0] == 0) return strides;
     size_t rank=0;
@@ -108,7 +115,7 @@ Tensor::Tensorptr Tensor::createOnes(const std::array<size_t,MAX_RANK> &shape) {
     }
     auto arr = std::make_unique<float[]>(total_size);
     std::fill_n(arr.get(), total_size, 1.0f);
-    return CreateTensor(std::move(arr), total_size, shape);
+    return createTensor(std::move(arr), total_size, shape);
 }
 
 Tensor::Tensorptr Tensor::createRandTensor(const std::initializer_list<size_t> &shape_list, const InitType mode) {
@@ -176,7 +183,7 @@ Tensor::Tensorptr Tensor::createRandTensor(const std::array<size_t, MAX_RANK> &s
                 arr[i] = dist(gen);
             }
         }
-    return CreateTensor(std::move(arr),total_size,shape);
+    return createTensor(std::move(arr),total_size,shape);
 }
 
 Tensor::Tensorptr Tensor::createZeros(const std::array<size_t,MAX_RANK>& shape) {
@@ -187,7 +194,7 @@ Tensor::Tensorptr Tensor::createZeros(const std::array<size_t,MAX_RANK>& shape) 
             break;
         }
     }
-    if (is_scalar) createScalar(1.0f);
+    if (is_scalar) return createScalar(1.0f);
     size_t total_size = 1;
     for(const auto dim:shape){
         if(dim == 0) break;
@@ -195,7 +202,7 @@ Tensor::Tensorptr Tensor::createZeros(const std::array<size_t,MAX_RANK>& shape) 
     }
     auto arr = std::make_unique<float[]>(total_size);
     std::fill_n(arr.get(), total_size, 0.0f);
-    return CreateTensor(std::move(arr),total_size,shape);
+    return createTensor(std::move(arr),total_size,shape);
 }
 
 const std::array<size_t, MAX_RANK> & Tensor::getShape() const {return shape;}
