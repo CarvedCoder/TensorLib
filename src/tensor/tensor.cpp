@@ -1,7 +1,7 @@
-#include "../include/tensor.h"
 #include <iostream>
 #include <random>
 #include <stdexcept>
+#include <tensor/tensor.h>
 
 Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size,
                const std::array<size_t, MAX_RANK> &shape_in,

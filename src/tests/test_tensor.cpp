@@ -1,12 +1,12 @@
-#include "../include/ops.h"
-#include "../include/tensor.h"
 #include <Eigen/Dense>
 #include <chrono>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <limits>
 #include <memory>
+#include <ops/ops.h>
 #include <string>
+#include <tensor/tensor.h>
 #include <utility>
 #include <vector>
 // SCALAR (0D) TENSOR TESTS

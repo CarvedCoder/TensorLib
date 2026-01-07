@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(minitensor VERSION 3 LANGUAGES CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -34,24 +35,22 @@ FetchContent_MakeAvailable(benchmark)
 
 # ---------------- library --------------------------
 add_library(tensor_lib STATIC
-        src/ops.cpp
-        src/tensor.cpp
-        src/autograd.cpp
+        src/ops/ops.cpp
+        src/tensor/tensor.cpp
 )
-target_include_directories(tensor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(tensor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # ---------------- test executable ------------------
 enable_testing()
-add_executable(tensor_test src/test_tensor.cpp)
-target_include_directories(tensor_test SYSTEM PRIVATE /opt/homebrew/include/eigen3)
+add_executable(tensor_test src/tests/test_tensor.cpp)
+target_include_directories(tensor_test SYSTEM PRIVATE /opt/homebrew/include/eigen3 ${gtest_SOURCE_DIR}/googletest/include)
 target_link_libraries(tensor_test PRIVATE tensor_lib GTest::gtest GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(tensor_test)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ---------------- benchmark executable ------------------
 add_executable(tensor_bench
-        src/bench_tensor.cpp
+        src/tests/bench_tensor.cpp
 )
 
 target_include_directories(tensor_bench

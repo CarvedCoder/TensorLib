@@ -1,6 +1,6 @@
-#include "../include/ops.h"
-#include "../include/tensor.h"
 #include <cstddef>
+#include <ops/ops.h>
+#include <tensor/tensor.h>
 
 // TODO: Add broadcasting
 

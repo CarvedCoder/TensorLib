@@ -1,10 +1,9 @@
 #ifndef OPS_H
 #define OPS_H
 
-#include "tensor.h"
+#include <tensor/tensor.h>
 enum LossType { SSE, MSE };
 namespace TensorOps {
-
 Tensor operator+(const Tensor &t1, const Tensor &t2);
 Tensor operator-(const Tensor &t1, const Tensor &t2);
 Tensor operator*(const Tensor &t1, const Tensor &t2);
