@@ -5,21 +5,16 @@
 enum LossType { SSE, MSE };
 namespace TensorOps {
 
-Tensor::Tensorptr operator+(const std::shared_ptr<Tensor> &t1,
-                            const std::shared_ptr<Tensor> &t2);
-Tensor::Tensorptr operator-(const std::shared_ptr<Tensor> &t1,
-                            const std::shared_ptr<Tensor> &t2);
-Tensor::Tensorptr operator*(const std::shared_ptr<Tensor> &t1,
-                            const std::shared_ptr<Tensor> &t2);
-Tensor::Tensorptr operator*(const std::shared_ptr<Tensor>, size_t rhs);
-Tensor::Tensorptr matmul(const std::shared_ptr<Tensor> &t1,
-                         const std::shared_ptr<Tensor> &t2);
-Tensor::Tensorptr transpose2D(const std::shared_ptr<Tensor> &t);
+Tensor operator+(const Tensor &t1, const Tensor &t2);
+Tensor operator-(const Tensor &t1, const Tensor &t2);
+Tensor operator*(const Tensor &t1, const Tensor &t2);
+Tensor operator*(const Tensor, size_t rhs);
+Tensor matmul(const Tensor &t1, const Tensor &t2);
+Tensor transpose2D(const Tensor &t);
 float sigmoid(float input_data);
 float relu(float input_data);
 float leakyRelu(float input_data);
 float m_tanh(float input_data);
-float calcCost(const std::shared_ptr<Tensor> &t1,
-               const std::shared_ptr<Tensor> &t2, LossType mode = SSE);
+float calcCost(const Tensor &t1, const Tensor &t2, LossType mode = SSE);
 } // namespace TensorOps
 #endif // OPS_H

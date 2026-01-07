@@ -15,43 +15,42 @@ class Tensor : public std::enable_shared_from_this<Tensor> {
     // bool require_grad = false;
     std::unique_ptr<float[]> grad;
 
-  private:
+  public:
     Tensor(std::unique_ptr<float[]> input_data, size_t size,
            const std::array<size_t, MAX_RANK> &shape,
            const std::array<size_t, MAX_RANK> &stride);
 
-  public:
-    using Tensorptr = std::shared_ptr<Tensor>;
+    // allows move only tensor
+    Tensor(Tensor &&) noexcept = default;
+    Tensor &operator=(Tensor &&) noexcept = default;
 
-    static Tensorptr createTensor(std::unique_ptr<float[]> input_data,
-                                  size_t size,
-                                  const std::array<size_t, MAX_RANK> &shape,
-                                  bool require_grad = false);
+    Tensor(const Tensor &) = delete;
+    Tensor &operator=(const Tensor &) = delete;
 
-    static Tensorptr CreateTensor(std::unique_ptr<float[]> input_data,
-                                  size_t size,
-                                  const std::vector<size_t> &shape_vec,
-                                  bool require_grad = false);
+    static Tensor createTensor(std::unique_ptr<float[]> input_data, size_t size,
+                               const std::array<size_t, MAX_RANK> &shape,
+                               bool require_grad = false);
 
-    static Tensorptr
-    CreateTensor(std::unique_ptr<float[]> input_data, size_t size,
-                 const std::initializer_list<size_t> &shape_list,
-                 bool require_grad = false);
+    static Tensor CreateTensor(std::unique_ptr<float[]> input_data, size_t size,
+                               const std::vector<size_t> &shape_vec,
+                               bool require_grad = false);
+
+    static Tensor CreateTensor(std::unique_ptr<float[]> input_data, size_t size,
+                               const std::initializer_list<size_t> &shape_list,
+                               bool require_grad = false);
 
     static std::array<size_t, MAX_RANK>
     calculateStrides(const std::array<size_t, MAX_RANK> &shape);
-    static Tensorptr createScalar(float data);
-    static Tensorptr
-    createZeros(const std::initializer_list<size_t> &shape_list);
-    static Tensorptr createZeros(const std::array<size_t, MAX_RANK> &shape);
-    static Tensorptr
-    createOnes(const std::initializer_list<size_t> &shape_list);
-    static Tensorptr createOnes(const std::array<size_t, MAX_RANK> &shape);
-    static Tensorptr
+    static Tensor createScalar(float data);
+    static Tensor createZeros(const std::initializer_list<size_t> &shape_list);
+    static Tensor createZeros(const std::array<size_t, MAX_RANK> &shape);
+    static Tensor createOnes(const std::initializer_list<size_t> &shape_list);
+    static Tensor createOnes(const std::array<size_t, MAX_RANK> &shape);
+    static Tensor
     createRandTensor(const std::initializer_list<size_t> &shape_list,
                      InitType mode = Normal);
-    static Tensorptr createRandTensor(const std::array<size_t, MAX_RANK> &shape,
-                                      InitType mode = Normal);
+    static Tensor createRandTensor(const std::array<size_t, MAX_RANK> &shape,
+                                   InitType mode = Normal);
     const std::array<size_t, MAX_RANK> &getShape() const;
     size_t getTotalSize() const;
     void setDataElem(size_t i, float val);

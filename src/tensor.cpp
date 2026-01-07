@@ -9,10 +9,10 @@ Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size,
     : data(std::move(input_data)), shape(shape_in), stride(stride_in),
       total_size(size) {}
 
-Tensor::Tensorptr
-Tensor::createTensor(std::unique_ptr<float[]> input_data, const size_t size,
-                     const std::array<size_t, MAX_RANK> &shape,
-                     bool require_grad) {
+Tensor Tensor::createTensor(std::unique_ptr<float[]> input_data,
+                            const size_t size,
+                            const std::array<size_t, MAX_RANK> &shape,
+                            bool require_grad) {
     size_t expected_size = 1;
     for (const auto dim : shape) {
         if (dim == 0)
@@ -28,15 +28,13 @@ Tensor::createTensor(std::unique_ptr<float[]> input_data, const size_t size,
     const auto stride = calculateStrides(shape);
     if (require_grad) {
     }
-    auto tensor =
-        Tensorptr(new Tensor(std::move(input_data), f_size, shape, stride));
-    return tensor;
+    return Tensor(std::move(input_data), f_size, shape, stride);
 }
 
-Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data,
-                                       const size_t size,
-                                       const std::vector<size_t> &shape_vec,
-                                       bool require_grad) {
+Tensor Tensor::CreateTensor(std::unique_ptr<float[]> input_data,
+                            const size_t size,
+                            const std::vector<size_t> &shape_vec,
+                            bool require_grad) {
     std::array<size_t, MAX_RANK> shape{};
     if (shape_vec.size() > MAX_RANK)
         std::cerr << "shape vec provided is greater than 8";
@@ -49,10 +47,10 @@ Tensor::Tensorptr Tensor::CreateTensor(std::unique_ptr<float[]> input_data,
     return createTensor(std::move(input_data), size, shape);
 }
 
-Tensor::Tensorptr
-Tensor::CreateTensor(std::unique_ptr<float[]> input_data, const size_t size,
-                     const std::initializer_list<size_t> &shape_list,
-                     bool require_grad) {
+Tensor Tensor::CreateTensor(std::unique_ptr<float[]> input_data,
+                            const size_t size,
+                            const std::initializer_list<size_t> &shape_list,
+                            bool require_grad) {
     std::array<size_t, MAX_RANK> shape{};
     size_t i = 0;
     if (shape_list.size() > MAX_RANK)
@@ -79,21 +77,20 @@ Tensor::calculateStrides(const std::array<size_t, MAX_RANK> &shape) {
         return strides;
     }
     size_t stride_val = 1;
-    for (auto i = static_cast<size_t>(rank); i-- >0;) {
+    for (auto i = static_cast<size_t>(rank); i-- > 0;) {
         strides[static_cast<size_t>(i)] = stride_val;
         stride_val *= shape[static_cast<size_t>(i)];
     }
     return strides;
 }
 
-Tensor::Tensorptr Tensor::createScalar(const float data) {
+Tensor Tensor::createScalar(const float data) {
     auto arr = std::make_unique<float[]>(1);
     arr[0] = data;
     return CreateTensor(std::move(arr), 1, {});
 }
 
-Tensor::Tensorptr
-Tensor::createOnes(const std::initializer_list<size_t> &shape_list) {
+Tensor Tensor::createOnes(const std::initializer_list<size_t> &shape_list) {
     std::array<size_t, MAX_RANK> shape{};
     size_t i = 0;
     if (shape_list.size() > MAX_RANK)
@@ -104,8 +101,7 @@ Tensor::createOnes(const std::initializer_list<size_t> &shape_list) {
     return createOnes(shape);
 }
 
-Tensor::Tensorptr
-Tensor::createZeros(const std::initializer_list<size_t> &shape_list) {
+Tensor Tensor::createZeros(const std::initializer_list<size_t> &shape_list) {
     std::array<size_t, MAX_RANK> shape{};
     size_t i = 0;
     if (shape_list.size() > MAX_RANK)
@@ -116,8 +112,7 @@ Tensor::createZeros(const std::initializer_list<size_t> &shape_list) {
     return createZeros(shape);
 }
 
-Tensor::Tensorptr
-Tensor::createOnes(const std::array<size_t, MAX_RANK> &shape) {
+Tensor Tensor::createOnes(const std::array<size_t, MAX_RANK> &shape) {
     bool is_scalar = true;
     for (const auto dim : shape) {
         if (dim != 0) {
@@ -126,7 +121,7 @@ Tensor::createOnes(const std::array<size_t, MAX_RANK> &shape) {
         }
     }
     if (is_scalar)
-        createScalar(1.0f);
+        return createScalar(1.0f);
     size_t total_size = 1;
     for (const auto dim : shape) {
         if (dim == 0)
@@ -138,9 +133,8 @@ Tensor::createOnes(const std::array<size_t, MAX_RANK> &shape) {
     return createTensor(std::move(arr), total_size, shape);
 }
 
-Tensor::Tensorptr
-Tensor::createRandTensor(const std::initializer_list<size_t> &shape_list,
-                         const InitType mode) {
+Tensor Tensor::createRandTensor(const std::initializer_list<size_t> &shape_list,
+                                const InitType mode) {
     std::array<size_t, MAX_RANK> shape{};
     size_t i = 0;
     for (const auto dim : shape_list) {
@@ -149,9 +143,8 @@ Tensor::createRandTensor(const std::initializer_list<size_t> &shape_list,
     return createRandTensor(shape, mode);
 }
 
-Tensor::Tensorptr
-Tensor::createRandTensor(const std::array<size_t, MAX_RANK> &shape,
-                         const InitType mode) {
+Tensor Tensor::createRandTensor(const std::array<size_t, MAX_RANK> &shape,
+                                const InitType mode) {
     size_t total_size = 1, rank = 0;
     for (const auto dim : shape) {
         if (dim == 0)
@@ -209,8 +202,7 @@ Tensor::createRandTensor(const std::array<size_t, MAX_RANK> &shape,
     return createTensor(std::move(arr), total_size, shape);
 }
 
-Tensor::Tensorptr
-Tensor::createZeros(const std::array<size_t, MAX_RANK> &shape) {
+Tensor Tensor::createZeros(const std::array<size_t, MAX_RANK> &shape) {
     bool is_scalar = true;
     for (const auto dim : shape) {
         if (dim != 0) {
