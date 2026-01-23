@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(minitensor VERSION 3 LANGUAGES CXX)
+project(TensorLib VERSION 3 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
@@ -7,9 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-# ---------------- sanitizers (Debug only) ----------
-string(APPEND CMAKE_CXX_FLAGS_DEBUG
-        " -fsanitize=address,undefined -fno-omit-frame-pointer")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address,undefined)
+endif()
+
 
 # ---------------- GoogleTest -----------------------
 include(FetchContent)
@@ -62,6 +64,12 @@ target_link_libraries(tensor_bench
         tensor_lib
         benchmark::benchmark_main
 )
+
+# main executable
+
+add_executable(main src/main.cpp)
+target_link_libraries(main PRIVATE tensor_lib)
+
 # ---------------- warnings = errors -----------------
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

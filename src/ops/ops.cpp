@@ -1,8 +1,9 @@
+#include <algorithm>
 #include <cstddef>
-#include <ops/ops.h>
-#include <tensor/tensor.h>
-
-// TODO: Add broadcasting
+#include <span>
+#include <tensorlib/ops/ops.h>
+#include <tensorlib/tensor/tensor.h>
+// TODO: Add broadcasting on operators (check done)
 
 namespace TensorOps {
 
@@ -20,17 +21,39 @@ float leakyRelu(const float input_data) {
 
 float m_tanh(const float input_data) { return std::tanh(input_data); }
 
-Tensor operator+(const Tensor &t1, const Tensor &t2) {
-    if (t1.getTotalSize() == 1 || t2.getTotalSize() == 1) {
+bool canBroadcast(const Tensor &t1, const Tensor &t2) {
+    auto t1_shape = t1.getShape();
+    auto t2_shape = t2.getShape();
+    size_t i = t1_shape.size();
+    size_t j = t2_shape.size();
+    while (i || j) {
+        size_t dim_t1 = (i > 0) ? t1_shape[i - 1] : 1;
+        size_t dim_t2 = (j > 0) ? t2_shape[j - 1] : 1;
+        if (dim_t1 != dim_t2 && dim_t1 != 1 && dim_t2 != 1)
+            return false;
+        if (i > 0)
+            i--;
+        if (j > 0)
+            j--;
     }
-    if (t1.getShape() != t2.getShape()) {
+    return true;
+}
+
+bool sameShape(const std::span<const size_t> &t1_shape,
+               const std::span<const size_t> &t2_shape) {
+    return t1_shape.size() == t2_shape.size() &&
+           std::equal(t1_shape.begin(), t1_shape.end(), t2_shape.begin());
+}
+
+Tensor operator+(const Tensor &t1, const Tensor &t2) {
+    auto n = t1.getTotalSize();
+    auto data_t1 = t1.getDataPtr();
+    auto data_t2 = t2.getDataPtr();
+    if (!sameShape(t1.getShape(), t2.getShape())) {
         throw std::invalid_argument(
             "shape of tensors don't match for add operator");
     }
     auto result = Tensor::createZeros(t1.getShape());
-    size_t n = t1.getTotalSize();
-    auto data_t1 = t1.getDataPtr();
-    auto data_t2 = t2.getDataPtr();
     auto mutData_result = result.getMutableDataPtr();
     for (size_t i = 0; i < n; i++) {
         mutData_result[i] = data_t1[i] + data_t2[i];
@@ -39,7 +62,7 @@ Tensor operator+(const Tensor &t1, const Tensor &t2) {
 }
 
 Tensor operator-(const Tensor &t1, const Tensor &t2) {
-    if (t1.getShape() != t2.getShape()) {
+    if (!sameShape(t1.getShape(), t2.getShape())) {
         throw std::invalid_argument(
             "shape of tensors don't match for sub operator");
     }
@@ -60,7 +83,7 @@ Tensor operator-(const Tensor &t1, const Tensor &t2) {
     return result;
 }
 
-Tensor operator*(const Tensor &lhs, float rhs) {
+Tensor operator*(const Tensor &lhs, const float rhs) {
     auto n = lhs.getTotalSize();
     auto result = Tensor::createZeros(lhs.getShape());
     auto mutData_result = result.getMutableDataPtr();
@@ -81,7 +104,7 @@ Tensor operator*(const Tensor &t1, const Tensor &t2) {
         return result;
     }
 
-    if (t1.getShape() != t2.getShape()) {
+    if (!sameShape(t1.getShape(), t2.getShape())) {
         throw std::invalid_argument(
             "shape of tensors don't match for mul operator");
     }
@@ -124,7 +147,7 @@ Tensor transpose2D(const Tensor &t) {
 }
 
 float calcCost(const Tensor &t1, const Tensor &t2, const LossType mode) {
-    if (t1.getShape() != t2.getShape())
+    if (!sameShape(t1.getShape(), t2.getShape()))
         throw std::invalid_argument("Tensor shape not same for calcCost");
     float result = 0;
     const size_t size = t1.getTotalSize();
@@ -134,7 +157,7 @@ float calcCost(const Tensor &t1, const Tensor &t2, const LossType mode) {
         const float diff = data_t1[i] - data_t2[i];
         result += diff * diff;
     }
-    return mode == SSE ? result : result / static_cast<float>(size);
+    return mode == LossType::SSE ? result : result / static_cast<float>(size);
 }
 
 Tensor matmul(const Tensor &t1, const Tensor &t2) {
