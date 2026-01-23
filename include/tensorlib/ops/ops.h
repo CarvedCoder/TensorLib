@@ -1,6 +1,5 @@
 #ifndef OPS_H
 #define OPS_H
-
 #include <tensorlib/tensor/tensor.h>
 enum class LossType { SSE, MSE };
 namespace TensorOps {

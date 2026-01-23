@@ -6,6 +6,7 @@
 #include <memory>
 #include <span>
 #include <vector>
+
 constexpr int MAX_RANK = 8;
 enum class InitType { Normal, He, Xavier, XavierUniform, HeUniform };
 class Tensor {
