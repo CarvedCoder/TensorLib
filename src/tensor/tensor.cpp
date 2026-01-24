@@ -1,26 +1,34 @@
-#include <cstddef>
-#include <random>
-#include <span>
-#include <stdexcept>
-#include <tensorlib/tensor/tensor.h>
+#include <tensorlib/tensor.h>
 
 Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size,
                const std::array<size_t, MAX_RANK> &shape_in)
-    : m_data(std::move(input_data)), m_shape(shape_in), m_total_size(size),
-      m_rank(0) {
+    : m_data(std::move(input_data)), m_shape(shape_in), m_total_size(size) {
+
+    m_rank = calculateRank();
+    m_stride = calculateStrides();
+}
+
+size_t Tensor::calculateRank() {
+    size_t rank = 0;
     for (const auto dim : m_shape) {
         if (dim == 0)
             break;
-        m_rank++;
+        rank++;
     }
-    m_stride.fill(0);
-    if (m_rank == 0)
-        return;
-    size_t stride_val = 1;
-    for (auto i = m_rank; i-- > 0;) {
-        m_stride[i] = stride_val;
-        stride_val *= m_shape[i];
+    return rank;
+}
+
+std::array<size_t, MAX_RANK> Tensor::calculateStrides() {
+    std::array<size_t, MAX_RANK> strides{};
+    if (m_rank == 0) {
+        return strides;
     }
+    strides[m_rank - 1] = 1;
+    for (int i = static_cast<int>(m_rank) - 2; i >= 0; i--) {
+        strides[static_cast<size_t>(i)] = strides[static_cast<size_t>(i) + 1] *
+                                          m_shape[static_cast<size_t>(i) + 1];
+    }
+    return strides;
 }
 
 Tensor Tensor::createTensor(std::unique_ptr<float[]> input_data,

@@ -1,8 +1,8 @@
 #include <Eigen/Dense>
 #include <benchmark/benchmark.h>
 #include <random>
-#include <tensorlib/ops/ops.h>
-#include <tensorlib/tensor/tensor.h>
+#include <tensorlib/ops.h>
+#include <tensorlib/tensor.h>
 
 // ============================================================
 // HELPERS

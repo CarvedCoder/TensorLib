@@ -1,6 +1,6 @@
 #include "tensorlib/ops/ops.h"
 #include <iostream>
-#include <tensorlib/tensor/tensor.h>
+#include <tensorlib/tensor.h>
 int main() {
 
     auto t1 = Tensor::createRandTensor({2, 2});

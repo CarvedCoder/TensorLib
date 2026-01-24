@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <memory>
+#include <random>
 #include <span>
 #include <vector>
 
@@ -18,6 +19,8 @@ class Tensor {
     // bool require_grad = false;
     std::unique_ptr<float[]> m_grad;
     size_t m_rank;
+    std::array<size_t, MAX_RANK> calculateStrides();
+    size_t calculateRank();
 
   public:
     Tensor(std::unique_ptr<float[]> input_data, size_t size,

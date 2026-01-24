@@ -4,8 +4,8 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
-#include <tensorlib/ops/ops.h>
-#include <tensorlib/tensor/tensor.h>
+#include <tensorlib/ops.h>
+#include <tensorlib/tensor.h>
 #include <utility>
 #include <vector>
 // ============================================================================

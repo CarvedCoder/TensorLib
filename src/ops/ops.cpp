@@ -1,5 +1,5 @@
-#include <tensorlib/ops/ops.h>
-#include <tensorlib/tensor/tensor.h>
+#include <tensorlib/ops.h>
+#include <tensorlib/tensor.h>
 // TODO: Add broadcasting on operators (check done)
 
 namespace TensorOps {
