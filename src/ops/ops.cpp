@@ -1,3 +1,11 @@
+#include "tensorlib/ops/ops.h"
+#include "tensorlib/tensor/tensor.h"
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <functional>
+#include <span>
+#include <stdexcept>
 #include <tensorlib/ops.h>
 #include <tensorlib/tensor.h>
 // TODO: Add broadcasting on operators (check done)
@@ -18,107 +26,71 @@ float leakyRelu(const float input_data) {
 
 float m_tanh(const float input_data) { return std::tanh(input_data); }
 
-bool canBroadcast(const Tensor &t1, const Tensor &t2) {
-    auto t1_shape = t1.getShape();
-    auto t2_shape = t2.getShape();
-    size_t i = t1_shape.size();
-    size_t j = t2_shape.size();
-    while (i || j) {
-        size_t dim_t1 = (i > 0) ? t1_shape[i - 1] : 1;
-        size_t dim_t2 = (j > 0) ? t2_shape[j - 1] : 1;
-        if (dim_t1 != dim_t2 && dim_t1 != 1 && dim_t2 != 1)
-            return false;
-        if (i > 0)
-            i--;
-        if (j > 0)
-            j--;
-    }
-    return true;
-}
-
 bool sameShape(const std::span<const size_t> &t1_shape,
                const std::span<const size_t> &t2_shape) {
     return t1_shape.size() == t2_shape.size() &&
            std::equal(t1_shape.begin(), t1_shape.end(), t2_shape.begin());
 }
 
+BroadcastInfo computeBroadcast(const Tensor &t1, const Tensor &t2) {
+    BroadcastInfo info{};
+    auto shape_t1 = t1.getShape();
+    auto shape_t2 = t2.getShape();
+    size_t rank_t1 = shape_t1.size();
+    size_t rank_t2 = shape_t2.size();
+    size_t max_rank = std::max(rank_t1, rank_t2);
+    size_t offset_t1 = max_rank - rank_t1;
+    size_t offset_t2 = max_rank - rank_t2;
+    info.b_totalSize = 1;
+    for (size_t i = 0; i < max_rank; i++) {
+        size_t dim_t1 = (i < offset_t1) ? 1 : shape_t1[i - (offset_t1)];
+        size_t dim_t2 = (i < offset_t2) ? 1 : shape_t2[i - (offset_t2)];
+        if (dim_t1 != dim_t2 && dim_t1 != 1 && dim_t2 != 1) {
+            info.Possible = false;
+            return info;
+        }
+        info.b_Shape[i] = std::max(dim_t1, dim_t2);
+        info.b_totalSize *= info.b_Shape[i];
+    }
+    info.Possible = true;
+    info.b_ShapeRank = max_rank;
+    auto strides_t1 = t1.getStrides();
+    auto strides_t2 = t2.getStrides();
+    for (size_t i = 0; i < max_rank; i++) {
+        if (i < offset_t1) {
+            info.b_Stride_t1[i] = 0;
+        } else {
+            size_t a = i - offset_t1;
+            info.b_Stride_t1[i] = shape_t1[a] == 1 ? 0 : strides_t1[a];
+        }
+        if (i < offset_t2) {
+            info.b_Stride_t2[i] = 0;
+        } else {
+            size_t a = i - offset_t2;
+            info.b_Stride_t2[i] = shape_t2[a] == 1 ? 0 : strides_t2[a];
+        }
+    }
+    return info;
+}
+
 Tensor operator+(const Tensor &t1, const Tensor &t2) {
-    auto n = t1.getTotalSize();
-    auto data_t1 = t1.getDataPtr();
-    auto data_t2 = t2.getDataPtr();
-    if (!sameShape(t1.getShape(), t2.getShape())) {
-        throw std::invalid_argument(
-            "shape of tensors don't match for add operator");
-    }
-    auto result = Tensor::createZeros(t1.getShape());
-    auto mutData_result = result.getMutableDataPtr();
-    for (size_t i = 0; i < n; i++) {
-        mutData_result[i] = data_t1[i] + data_t2[i];
-    }
-    return result;
+    return binaryKernel(t1, t2, std::plus<float>{});
 }
 
 Tensor operator-(const Tensor &t1, const Tensor &t2) {
-    if (!sameShape(t1.getShape(), t2.getShape())) {
-        throw std::invalid_argument(
-            "shape of tensors don't match for sub operator");
-    }
-    auto result = Tensor::createZeros(t1.getShape());
-    if (t1.getShape().empty()) {
-        result.setDataElem(0, t1.getDataPtr()[0] - t2.getDataPtr()[0]);
-        return result;
-    }
-
-    size_t n = t1.getTotalSize();
-    auto data_t1 = t1.getDataPtr();
-    auto data_t2 = t2.getDataPtr();
-    auto mutData_result = result.getMutableDataPtr();
-
-    for (size_t i = 0; i < n; i++) {
-        mutData_result[i] = data_t1[i] - data_t2[i];
-    }
-    return result;
-}
-
-Tensor operator*(const Tensor &lhs, const float rhs) {
-    auto n = lhs.getTotalSize();
-    auto result = Tensor::createZeros(lhs.getShape());
-    auto mutData_result = result.getMutableDataPtr();
-    auto data_lhs = lhs.getDataPtr();
-    for (size_t i = 0; i < n; i++) {
-        mutData_result[i] = data_lhs[i] * rhs;
-    }
-    return result;
+    return binaryKernel(t1, t2, std::minus<float>{});
 }
 
 Tensor operator*(const Tensor &t1, const Tensor &t2) {
-    size_t size_t1 = t1.getTotalSize();
-    size_t size_t2 = t2.getTotalSize();
+    return binaryKernel(t1, t2, std::multiplies<float>{});
+}
 
-    if (size_t1 == 1 || size_t2 == 1) {
-        auto result =
-            size_t1 == 1 ? t2 * t1.getDataPtr()[0] : t1 * t2.getDataPtr()[0];
-        return result;
-    }
+Tensor operator/(const Tensor &t1, const Tensor &t2) {
+    return binaryKernel(t1, t2, std::divides<float>{});
+}
 
-    if (!sameShape(t1.getShape(), t2.getShape())) {
-        throw std::invalid_argument(
-            "shape of tensors don't match for mul operator");
-    }
-    auto result = Tensor::createZeros(t1.getShape());
-    if (t1.getShape().empty()) {
-        result.setDataElem(0, t1.getDataPtr()[0] * t2.getDataPtr()[0]);
-        return result;
-    }
-    size_t n = t1.getTotalSize();
-    auto data_t1 = t1.getDataPtr();
-    auto data_t2 = t2.getDataPtr();
-    auto mutData_result = result.getMutableDataPtr();
-
-    for (size_t i = 0; i < n; i++) {
-        mutData_result[i] = data_t1[i] * data_t2[i];
-    }
-    return result;
+Tensor operator*(const Tensor &lhs, float rhs) {
+    return lhs * Tensor::createScalar(rhs);
 }
 
 Tensor transpose2D(const Tensor &t) {
