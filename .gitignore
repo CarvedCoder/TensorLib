@@ -5,3 +5,4 @@ cmake-build-release/
 .cache/
 .DS_Store
 compile_commands.json
+cmake-build-debug/compile_commands.json

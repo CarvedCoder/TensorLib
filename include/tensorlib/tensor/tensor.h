@@ -2,10 +2,12 @@
 #define TENSOR_H
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <initializer_list>
 #include <memory>
 #include <random>
 #include <span>
+#include <stdexcept>
 #include <vector>
 
 constexpr int MAX_RANK = 8;
@@ -22,10 +24,11 @@ class Tensor {
     std::array<size_t, MAX_RANK> calculateStrides();
     size_t calculateRank();
 
-  public:
+  private:
     Tensor(std::unique_ptr<float[]> input_data, size_t size,
            const std::array<size_t, MAX_RANK> &shape);
 
+  public:
     // allows move only tensor
     Tensor(Tensor &&) noexcept = default;
     Tensor &operator=(Tensor &&) noexcept = default;
@@ -33,15 +36,15 @@ class Tensor {
     Tensor(const Tensor &) = delete;
     Tensor &operator=(const Tensor &) = delete;
 
-    static Tensor createTensor(std::unique_ptr<float[]> input_data, size_t size,
+    static Tensor createTensor(std::unique_ptr<float[]> input_data,
                                const std::array<size_t, MAX_RANK> &shape,
                                bool require_grad = false);
 
-    static Tensor createTensor(std::unique_ptr<float[]> input_data, size_t size,
+    static Tensor createTensor(std::unique_ptr<float[]> input_data,
                                const std::vector<size_t> &shape_vec,
                                bool require_grad = false);
 
-    static Tensor createTensor(std::unique_ptr<float[]> input_data, size_t size,
+    static Tensor createTensor(std::unique_ptr<float[]> input_data,
                                const std::initializer_list<size_t> &shape_list,
                                bool require_grad = false);
 
@@ -58,6 +61,8 @@ class Tensor {
                                    InitType mode = InitType::Normal);
     const std::span<const size_t> getShape() const;
     const std::span<const float> view() const;
+    void reshape(const std::array<size_t, MAX_RANK> &new_shape);
+    void reshape(const std::initializer_list<size_t> &shape_list);
     size_t getTotalSize() const;
     size_t getRank() const;
     void setDataElem(size_t i, float val);
@@ -66,6 +71,7 @@ class Tensor {
     const float &operator()(size_t i) const;
     const float &operator()(size_t i, size_t j) const;
     const float &operator()(size_t i, size_t j, size_t k) const;
+    static void setSeed(uint32_t seed);
     const std::span<const size_t> getStrides() const;
     void zeroGrad() const;
 };

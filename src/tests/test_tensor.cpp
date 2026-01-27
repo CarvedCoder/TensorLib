@@ -48,7 +48,7 @@ TEST(Tensor1DTest, CreationAndInvariants) {
     for (size_t i = 0; i < 5; ++i)
         arr[i] = static_cast<float>(i);
 
-    auto tensor = Tensor::createTensor(std::move(arr), 5, {5});
+    auto tensor = Tensor::createTensor(std::move(arr), {5});
 
     EXPECT_EQ(tensor.getRank(), 1);
     EXPECT_EQ(tensor.getTotalSize(), 5);
@@ -86,7 +86,7 @@ TEST(Tensor2DTest, CreationAndInvariants) {
     for (size_t i = 0; i < 6; ++i)
         arr[i] = static_cast<float>(i + 1);
 
-    auto tensor = Tensor::createTensor(std::move(arr), 6, {2, 3});
+    auto tensor = Tensor::createTensor(std::move(arr), {2, 3});
 
     EXPECT_EQ(tensor.getRank(), 2);
     EXPECT_EQ(tensor.getTotalSize(), 6);
@@ -100,7 +100,7 @@ TEST(Tensor2DTest, RowMajorIndexing) {
     for (size_t i = 0; i < 6; ++i)
         arr[i] = static_cast<float>(i + 1);
 
-    auto tensor = Tensor::createTensor(std::move(arr), 6, {2, 3});
+    auto tensor = Tensor::createTensor(std::move(arr), {2, 3});
 
     // Row-major layout: [[1,2,3], [4,5,6]]
     EXPECT_FLOAT_EQ(tensor(0, 0), 1.0f);
@@ -131,7 +131,7 @@ TEST(Tensor2DTest, StridesViaIndexing) {
     for (size_t i = 0; i < 12; ++i)
         arr[i] = static_cast<float>(i);
 
-    auto tensor = Tensor::createTensor(std::move(arr), 12, {3, 4});
+    auto tensor = Tensor::createTensor(std::move(arr), {3, 4});
 
     // Verify row-major stride behavior
     // Element at (i,j) should be at index i*4 + j
@@ -150,7 +150,7 @@ TEST(Tensor3DTest, CreationAndInvariants) {
     for (size_t i = 0; i < 24; ++i)
         arr[i] = static_cast<float>(i);
 
-    auto tensor = Tensor::createTensor(std::move(arr), 24, {2, 3, 4});
+    auto tensor = Tensor::createTensor(std::move(arr), {2, 3, 4});
 
     EXPECT_EQ(tensor.getRank(), 3);
     EXPECT_EQ(tensor.getTotalSize(), 24);
@@ -165,7 +165,7 @@ TEST(Tensor3DTest, RowMajorIndexing) {
     for (size_t i = 0; i < 24; ++i)
         arr[i] = static_cast<float>(i);
 
-    auto tensor = Tensor::createTensor(std::move(arr), 24, {2, 3, 4});
+    auto tensor = Tensor::createTensor(std::move(arr), {2, 3, 4});
 
     EXPECT_FLOAT_EQ(tensor(0, 0, 0), 0.0f);
     EXPECT_FLOAT_EQ(tensor(0, 0, 3), 3.0f);
@@ -242,7 +242,7 @@ TEST(ShapeValidationTest, SizeMismatch) {
     auto arr = std::make_unique<float[]>(6);
 
     // Shape implies 4 elements, but we have 6
-    EXPECT_THROW(Tensor::createTensor(std::move(arr), 6, {2, 2}),
+    EXPECT_THROW(Tensor::createTensor(std::move(arr), {2, 2}),
                  std::invalid_argument);
 }
 
@@ -251,7 +251,7 @@ TEST(ShapeValidationTest, ExcessiveRank) {
     std::vector<size_t> shape(10, 1); // 10 dimensions
 
     // Should handle gracefully (MAX_RANK is 8)
-    EXPECT_THROW(Tensor::createTensor(std::move(arr), 1, shape),
+    EXPECT_THROW(Tensor::createTensor(std::move(arr), shape),
                  std::invalid_argument);
 }
 
@@ -320,7 +320,7 @@ TEST(TransposeTest, Square2x2) {
     arr[2] = 3.0f;
     arr[3] = 4.0f;
 
-    auto tensor = Tensor::createTensor(std::move(arr), 4, {2, 2});
+    auto tensor = Tensor::createTensor(std::move(arr), {2, 2});
     auto transposed = TensorOps::transpose2D(tensor);
 
     EXPECT_EQ(transposed.getShape()[0], 2);
@@ -337,7 +337,7 @@ TEST(TransposeTest, Rectangular) {
     for (size_t i = 0; i < 6; ++i)
         arr[i] = static_cast<float>(i + 1);
 
-    auto tensor = Tensor::createTensor(std::move(arr), 6, {2, 3});
+    auto tensor = Tensor::createTensor(std::move(arr), {2, 3});
     auto transposed = TensorOps::transpose2D(tensor);
 
     EXPECT_EQ(transposed.getShape()[0], 3);
@@ -397,8 +397,8 @@ TEST(MatMulTest, Basic2x2) {
     arr_b[2] = 7.0f;
     arr_b[3] = 8.0f;
 
-    auto A = Tensor::createTensor(std::move(arr_a), 4, {2, 2});
-    auto B = Tensor::createTensor(std::move(arr_b), 4, {2, 2});
+    auto A = Tensor::createTensor(std::move(arr_a), {2, 2});
+    auto B = Tensor::createTensor(std::move(arr_b), {2, 2});
 
     auto C = TensorOps::matmul(A, B);
 
@@ -420,8 +420,8 @@ TEST(MatMulTest, Rectangular) {
         arr_b[i] = static_cast<float>(i + 7);
     }
 
-    auto A = Tensor::createTensor(std::move(arr_a), 6, {2, 3}); // 2x3
-    auto B = Tensor::createTensor(std::move(arr_b), 6, {3, 2}); // 3x2
+    auto A = Tensor::createTensor(std::move(arr_a), {2, 3}); // 2x3
+    auto B = Tensor::createTensor(std::move(arr_b), {3, 2}); // 3x2
 
     auto C = TensorOps::matmul(A, B);
 
@@ -440,8 +440,8 @@ TEST(MatMulTest, MatrixVector) {
     arr_v[1] = 2.0f;
     arr_v[2] = 3.0f;
 
-    auto A = Tensor::createTensor(std::move(arr_a), 6, {2, 3});
-    auto v = Tensor::createTensor(std::move(arr_v), 3, {3, 1});
+    auto A = Tensor::createTensor(std::move(arr_a), {2, 3});
+    auto v = Tensor::createTensor(std::move(arr_v), {3, 1});
 
     auto result = TensorOps::matmul(A, v);
 

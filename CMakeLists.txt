@@ -39,6 +39,7 @@ FetchContent_MakeAvailable(benchmark)
 add_library(tensor_lib STATIC
         src/ops/ops.cpp
         src/tensor/tensor.cpp
+        src/tensor/tensor_RNG.cpp
 )
 target_include_directories(tensor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -80,6 +81,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         -Wshadow
         -Wconversion
         -Wsign-conversion
+        -Wreorder
     )
 
     target_compile_options(tensor_lib PRIVATE ${PROJECT_WARNINGS} -Werror)
