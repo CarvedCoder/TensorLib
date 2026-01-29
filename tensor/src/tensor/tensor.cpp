@@ -17,7 +17,6 @@ size_t Tensor::calculateRank() {
     }
     return rank;
 }
-
 std::array<size_t, MAX_RANK> Tensor::calculateStrides() {
     std::array<size_t, MAX_RANK> strides{};
     if (m_rank == 0) {

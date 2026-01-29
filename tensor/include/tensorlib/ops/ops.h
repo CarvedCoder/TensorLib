@@ -1,7 +1,7 @@
 #ifndef OPS_H
 #define OPS_H
 #include <array>
-#include <tensorlib/tensor/tensor.h>
+#include <tensorlib/tensor.h>
 enum class LossType { SSE, MSE };
 struct BroadcastInfo {
     bool Possible = false;

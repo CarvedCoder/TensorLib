@@ -11,7 +11,9 @@
 #include <vector>
 
 constexpr int MAX_RANK = 8;
+
 enum class InitType { Normal, He, Xavier, XavierUniform, HeUniform };
+
 class Tensor {
   private:
     std::unique_ptr<float[]> m_data;
@@ -75,5 +77,4 @@ class Tensor {
     const std::span<const size_t> getStrides() const;
     void zeroGrad() const;
 };
-
 #endif // TENSOR_H

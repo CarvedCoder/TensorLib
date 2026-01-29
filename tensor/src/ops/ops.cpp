@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <tensorlib/ops.h>
 #include <tensorlib/tensor.h>
-// TODO: Add broadcasting on operators (check done)
 
 namespace TensorOps {
 
