@@ -426,7 +426,7 @@ t.reshape({24});                     // Now 1D: 24 elements
 |----------|---------|
 | `sigmoid(x)` | 1 / (1 + e^(-x)) |
 | `relu(x)` | max(0, x) |
-| `leakyRelu(x)` | x > 0 ? x : 0.01 |
+| `leakyRelu(x)` | x > 0 ? x : 0.01 (Note: current impl returns constant; typical leaky ReLU uses 0.01x) |
 | `m_tanh(x)` | tanh(x) |
 
 ### Shape Operations
