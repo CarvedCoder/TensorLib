@@ -33,23 +33,23 @@ Tensor binaryKernel(const Tensor &t1, const Tensor &t2, Op op) {
     if (info.b_ShapeRank == 1) {
         size_t s1 = info.b_Stride_t1[0];
         size_t s2 = info.b_Stride_t2[0];
-        for (size_t i = 0; i < n; ++i)
+        for (size_t i = 0; i < n; i++)
             out[i] = op(d1[i * s1], d2[i * s2]);
         return result;
     }
 
     std::array<size_t, MAX_RANK> idx{};
-    for (size_t linear = 0; linear < n; ++linear) {
+    for (size_t linear = 0; linear < n; linear++) {
         size_t off1 = 0, off2 = 0;
 
-        for (size_t d = 0; d < info.b_ShapeRank; ++d) {
+        for (size_t d = 0; d < info.b_ShapeRank; d++) {
             off1 += info.b_Stride_t1[d] * idx[d];
             off2 += info.b_Stride_t2[d] * idx[d];
         }
 
         out[linear] = op(d1[off1], d2[off2]);
 
-        for (int d = static_cast<int>(info.b_ShapeRank) - 1; d >= 0; --d) {
+        for (int d = static_cast<int>(info.b_ShapeRank) - 1; d >= 0; d--) {
             if (++idx[static_cast<size_t>(d)] <
                 info.b_Shape[static_cast<size_t>(d)])
                 break;

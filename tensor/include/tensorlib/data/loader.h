@@ -5,7 +5,7 @@
 #include <tensorlib/tensor.h>
 
 namespace Data {
-Tensor toTensor(csvlib::CSVData &csv_data);
+Tensor toTensor(CSVData &csv_data);
 } // namespace Data
 
 #endif // !LOADER_H
