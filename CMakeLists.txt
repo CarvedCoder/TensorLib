@@ -34,4 +34,4 @@ add_subdirectory(tensor)
 add_subdirectory(tests)
 add_subdirectory(benchmarks)
 add_subdirectory(apps)
-
+add_subdirectory(dataLoader)

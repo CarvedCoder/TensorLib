@@ -17,7 +17,7 @@ else()
 endif()
 
 target_link_libraries(test_tensor PRIVATE
-    tensor_lib
+    tensorlib
     GTest::gtest
     GTest::gtest_main
 )

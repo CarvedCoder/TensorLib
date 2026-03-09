@@ -1,11 +1,3 @@
-#include "tensorlib/ops/ops.h"
-#include "tensorlib/tensor/tensor.h"
-#include <algorithm>
-#include <array>
-#include <cstddef>
-#include <functional>
-#include <span>
-#include <stdexcept>
 #include <tensorlib/ops.h>
 #include <tensorlib/tensor.h>
 
@@ -23,15 +15,16 @@ float leakyRelu(const float input_data) {
     return input_data > 0 ? input_data : 0.01f;
 }
 
-float m_tanh(const float input_data) { return std::tanh(input_data); }
+float m_tanh(const float input_data) {
+    return std::tanh(input_data);
+}
 
-bool sameShape(const std::span<const size_t> &t1_shape,
-               const std::span<const size_t> &t2_shape) {
+bool sameShape(const std::span<const size_t>& t1_shape, const std::span<const size_t>& t2_shape) {
     return t1_shape.size() == t2_shape.size() &&
            std::equal(t1_shape.begin(), t1_shape.end(), t2_shape.begin());
 }
 
-BroadcastInfo computeBroadcast(const Tensor &t1, const Tensor &t2) {
+BroadcastInfo computeBroadcast(const Tensor& t1, const Tensor& t2) {
     BroadcastInfo info{};
     auto shape_t1 = t1.getShape();
     auto shape_t2 = t2.getShape();
@@ -72,27 +65,27 @@ BroadcastInfo computeBroadcast(const Tensor &t1, const Tensor &t2) {
     return info;
 }
 
-Tensor operator+(const Tensor &t1, const Tensor &t2) {
+Tensor operator+(const Tensor& t1, const Tensor& t2) {
     return binaryKernel(t1, t2, std::plus<float>{});
 }
 
-Tensor operator-(const Tensor &t1, const Tensor &t2) {
+Tensor operator-(const Tensor& t1, const Tensor& t2) {
     return binaryKernel(t1, t2, std::minus<float>{});
 }
 
-Tensor operator*(const Tensor &t1, const Tensor &t2) {
+Tensor operator*(const Tensor& t1, const Tensor& t2) {
     return binaryKernel(t1, t2, std::multiplies<float>{});
 }
 
-Tensor operator/(const Tensor &t1, const Tensor &t2) {
+Tensor operator/(const Tensor& t1, const Tensor& t2) {
     return binaryKernel(t1, t2, std::divides<float>{});
 }
 
-Tensor operator*(const Tensor &lhs, float rhs) {
+Tensor operator*(const Tensor& lhs, float rhs) {
     return lhs * Tensor::createScalar(rhs);
 }
 
-Tensor transpose2D(const Tensor &t) {
+Tensor transpose2D(const Tensor& t) {
     const size_t rank = t.getRank();
     const auto shape = t.getShape();
     if (rank >= 3 || rank == 1)
@@ -101,10 +94,10 @@ Tensor transpose2D(const Tensor &t) {
     size_t rows = shape[0];
     size_t cols = shape[1];
     auto T = Tensor::createZeros({cols, rows});
-    auto &strides_T = T.getStrides();
+    auto& strides_T = T.getStrides();
     auto mutData_T = T.getMutableDataPtr();
     auto data_t = t.getDataPtr();
-    auto &strides_t = t.getStrides();
+    auto& strides_t = t.getStrides();
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
             mutData_T[j * strides_T[0] + i * strides_T[1]] =
@@ -114,7 +107,7 @@ Tensor transpose2D(const Tensor &t) {
     return T;
 }
 
-float calcCost(const Tensor &t1, const Tensor &t2, const LossType mode) {
+float calcCost(const Tensor& t1, const Tensor& t2, const LossType mode) {
     if (!sameShape(t1.getShape(), t2.getShape()))
         throw std::invalid_argument("Tensor shape not same for calcCost");
     float result = 0;
@@ -128,7 +121,7 @@ float calcCost(const Tensor &t1, const Tensor &t2, const LossType mode) {
     return mode == LossType::SSE ? result : result / static_cast<float>(size);
 }
 
-Tensor matmul(const Tensor &t1, const Tensor &t2) {
+Tensor matmul(const Tensor& t1, const Tensor& t2) {
     const auto r1 = t1.getRank();
     if (r1 != t2.getRank())
         throw std::invalid_argument("Rank is not the same for matmul");
@@ -139,14 +132,14 @@ Tensor matmul(const Tensor &t1, const Tensor &t2) {
     const size_t m = s1[0];
     const size_t K = s1[1];
     const size_t n = s2[1];
-    auto &strides_t1 = t1.getStrides();
+    auto& strides_t1 = t1.getStrides();
     auto data_t1 = t1.getDataPtr();
     auto data_t2 = t2.getDataPtr();
-    auto &strides_t2 = t2.getStrides();
+    auto& strides_t2 = t2.getStrides();
     if (K != s2[0])
         throw std::invalid_argument("Inner ranks in matmul aren't the same");
     auto result = Tensor::createZeros({m, n});
-    auto &strides_result = result.getStrides();
+    auto& strides_result = result.getStrides();
     auto mutData_result = result.getMutableDataPtr();
     for (size_t i = 0; i < m; i++) {
         for (size_t k = 0; k < K; k++) {
