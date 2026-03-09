@@ -1,6 +1,12 @@
 #ifndef OPS_H
 #define OPS_H
+#include <algorithm>
 #include <array>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <span>
+#include <stdexcept>
 #include <tensorlib/tensor.h>
 enum class LossType { SSE, MSE };
 struct BroadcastInfo {
@@ -13,10 +19,9 @@ struct BroadcastInfo {
 };
 namespace TensorOps {
 
-BroadcastInfo computeBroadcast(const Tensor &t1, const Tensor &t2);
+BroadcastInfo computeBroadcast(const Tensor& t1, const Tensor& t2);
 
-template <typename Op>
-Tensor binaryKernel(const Tensor &t1, const Tensor &t2, Op op) {
+template <typename Op> Tensor binaryKernel(const Tensor& t1, const Tensor& t2, Op op) {
     auto info = computeBroadcast(t1, t2);
     if (!info.Possible)
         throw std::invalid_argument("Can't broadcast these two tensors");
@@ -50,8 +55,7 @@ Tensor binaryKernel(const Tensor &t1, const Tensor &t2, Op op) {
         out[linear] = op(d1[off1], d2[off2]);
 
         for (int d = static_cast<int>(info.b_ShapeRank) - 1; d >= 0; d--) {
-            if (++idx[static_cast<size_t>(d)] <
-                info.b_Shape[static_cast<size_t>(d)])
+            if (++idx[static_cast<size_t>(d)] < info.b_Shape[static_cast<size_t>(d)])
                 break;
             idx[static_cast<size_t>(d)] = 0;
         }
@@ -60,20 +64,18 @@ Tensor binaryKernel(const Tensor &t1, const Tensor &t2, Op op) {
     return result;
 }
 
-Tensor operator+(const Tensor &t1, const Tensor &t2);
-Tensor operator-(const Tensor &t1, const Tensor &t2);
-Tensor operator*(const Tensor &t1, const Tensor &t2);
-Tensor operator*(const Tensor &lhs, float rhs);
-Tensor matmul(const Tensor &t1, const Tensor &t2);
-Tensor transpose2D(const Tensor &t);
-float calcCost(const Tensor &t1, const Tensor &t2,
-               LossType mode = LossType::SSE);
+Tensor operator+(const Tensor& t1, const Tensor& t2);
+Tensor operator-(const Tensor& t1, const Tensor& t2);
+Tensor operator*(const Tensor& t1, const Tensor& t2);
+Tensor operator*(const Tensor& lhs, float rhs);
+Tensor matmul(const Tensor& t1, const Tensor& t2);
+Tensor transpose2D(const Tensor& t);
+float calcCost(const Tensor& t1, const Tensor& t2, LossType mode = LossType::SSE);
 float sigmoid(float input_data);
 float relu(float input_data);
 float leakyRelu(float input_data);
 float m_tanh(float input_data);
 
-bool sameShape(const std::span<const size_t> &t1_shape,
-               const std::span<const size_t> &t2_shape);
+bool sameShape(const std::span<const size_t>& t1_shape, const std::span<const size_t>& t2_shape);
 } // namespace TensorOps
 #endif // OPS_H

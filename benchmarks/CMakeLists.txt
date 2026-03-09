@@ -15,7 +15,7 @@ else()
 endif()
 
 target_link_libraries(bench_tensor PRIVATE
-    tensor_lib
+    tensorlib
     benchmark::benchmark_main
 )
 
