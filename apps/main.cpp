@@ -1,31 +1,13 @@
-#include <cmath>
-#include <csvlib/csv.h>
-#include <iomanip>
-#include <ios>
+#include "tensorlib/ops/ops.h"
+#include "tensorlib/tensor/tensor.h"
 #include <iostream>
-#include <string>
 #include <tensorlib/tensor.h>
 int main() {
-    CSVData data = CSVParser::readCSV("", ',');
-    for (const auto& feature : data.features) {
-        std::cout << feature << "\n";
+    auto t1 = Tensor::createTensor({1, 2, 3, 4, 5, 6}, {2, 3});
+    auto t2 = Tensor::createTensor({7, 8, 9, 10, 11, 12}, {3, 2});
+    auto t3 = TensorOps::matmul(t1, t2);
+    for (const auto elem : t3.view()) {
+        std::cout << elem << " ";
     }
-
-    for (const auto& f : data.features) {
-        std::cout << "[" << f << "] len=" << f.size() << "\n";
-    }
-
-    const float* col_data = CSVParser::getColumn(data, "TOTAL_YIELD");
-
-    std::cout << std::fixed << std::setprecision(2);
-
-    for (size_t r = 0; r < data.num_rows; ++r) {
-        float v = *(col_data + r);
-        if (std::isnan(v))
-            std::cout << "NaN ";
-        else
-            std::cout << v << " ";
-    }
-
     std::cout << "\n";
 }
