@@ -29,20 +29,42 @@ class Tensor {
            const std::array<size_t, MAX_RANK>& shape);
 
   public:
-    // allows move only tensor
-    Tensor(Tensor&&) noexcept = default;
-    Tensor& operator=(Tensor&&) noexcept = default;
-    Tensor(const Tensor&) = delete;
-    Tensor& operator=(const Tensor&) = delete;
-
-    static Tensor createTensor(std::unique_ptr<float[]> input_data,
+    static Tensor createTensor(std::unique_ptr<float[]> input_data, const size_t allocated_size,
                                const std::array<size_t, MAX_RANK>& shape,
+                               bool require_grad = false);
+
+    static Tensor createTensor(std::unique_ptr<float[]> input_data, const size_t allocated_size,
+                               const std::vector<size_t>& shape_vec, bool require_grad = false);
+
+    static Tensor createTensor(std::unique_ptr<float[]> input_data, const size_t allocated_size,
+                               const std::initializer_list<size_t>& shape_list,
+                               bool require_grad = false);
+    static Tensor createTensor(std::unique_ptr<float[]> input_data,
+                               const std::initializer_list<size_t>& shape_list,
                                bool require_grad = false);
 
     static Tensor createTensor(std::unique_ptr<float[]> input_data,
                                const std::vector<size_t>& shape_vec, bool require_grad = false);
 
-    static Tensor createTensor(std::unique_ptr<float[]> input_data,
+    static Tensor createTensor(std::span<const float> input_data,
+                               const std::array<size_t, MAX_RANK>& shape,
+                               bool require_grad = false);
+
+    static Tensor createTensor(std::span<const float> input_data,
+                               const std::vector<size_t>& shape_vec, bool require_grad = false);
+
+    static Tensor createTensor(std::span<const float> input_data,
+                               const std::initializer_list<size_t>& shape_list,
+                               bool require_grad = false);
+
+    static Tensor createTensor(const std::initializer_list<float>& input_data,
+                               const std::array<size_t, MAX_RANK>& shape,
+                               bool require_grad = false);
+
+    static Tensor createTensor(const std::initializer_list<float>& input_data,
+                               const std::vector<size_t>& shape_vec, bool require_grad = false);
+
+    static Tensor createTensor(const std::initializer_list<float>& input_data,
                                const std::initializer_list<size_t>& shape_list,
                                bool require_grad = false);
 
