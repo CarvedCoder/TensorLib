@@ -6,8 +6,6 @@
 #include <initializer_list>
 #include <memory>
 #include <span>
-#include <vector>
-
 constexpr int MAX_RANK = 8;
 
 enum class InitType { Normal, He, Xavier, XavierUniform, HeUniform };
@@ -29,52 +27,24 @@ class Tensor {
            const std::array<size_t, MAX_RANK>& shape);
 
   public:
-    static Tensor createTensor(std::unique_ptr<float[]> input_data, const size_t allocated_size,
-                               const std::array<size_t, MAX_RANK>& shape,
-                               bool require_grad = false);
-
-    static Tensor createTensor(std::unique_ptr<float[]> input_data, const size_t allocated_size,
-                               const std::vector<size_t>& shape_vec, bool require_grad = false);
-
-    static Tensor createTensor(std::unique_ptr<float[]> input_data, const size_t allocated_size,
-                               const std::initializer_list<size_t>& shape_list,
-                               bool require_grad = false);
     static Tensor createTensor(std::unique_ptr<float[]> input_data,
-                               const std::initializer_list<size_t>& shape_list,
-                               bool require_grad = false);
-
-    static Tensor createTensor(std::unique_ptr<float[]> input_data,
-                               const std::vector<size_t>& shape_vec, bool require_grad = false);
+                               std::span<const size_t> shape_data, bool require_grad = false);
 
     static Tensor createTensor(std::span<const float> input_data,
-                               const std::array<size_t, MAX_RANK>& shape,
+                               std::span<const size_t> shape_data, bool require_grad = false);
+
+    static Tensor createTensor(std::unique_ptr<float[]> data, std::initializer_list<size_t> shape,
                                bool require_grad = false);
-
-    static Tensor createTensor(std::span<const float> input_data,
-                               const std::vector<size_t>& shape_vec, bool require_grad = false);
-
-    static Tensor createTensor(std::span<const float> input_data,
-                               const std::initializer_list<size_t>& shape_list,
+    static Tensor createTensor(std::span<const float> data, std::initializer_list<size_t> shape,
                                bool require_grad = false);
-
-    static Tensor createTensor(const std::initializer_list<float>& input_data,
-                               const std::array<size_t, MAX_RANK>& shape,
-                               bool require_grad = false);
-
-    static Tensor createTensor(const std::initializer_list<float>& input_data,
-                               const std::vector<size_t>& shape_vec, bool require_grad = false);
-
-    static Tensor createTensor(const std::initializer_list<float>& input_data,
-                               const std::initializer_list<size_t>& shape_list,
-                               bool require_grad = false);
-
+    static Tensor createTensor(std::initializer_list<float> data,
+                               std::initializer_list<size_t> shape, bool require_grad = false);
     static Tensor createScalar(float data);
     static Tensor createZeros(const std::initializer_list<size_t>& shape_list);
-    static Tensor createZeros(const std::array<size_t, MAX_RANK>& shape);
-    static Tensor createZeros(const std::span<const size_t>& span_shape);
-    static Tensor createOnes(const std::initializer_list<size_t>& shape_list);
-    static Tensor createOnes(const std::array<size_t, MAX_RANK>& shape);
-    static Tensor createRandTensor(const std::initializer_list<size_t>& shape_list,
+    static Tensor createZeros(const std::span<const size_t> span_shape);
+    static Tensor createOnes(const std::initializer_list<size_t> shape_list);
+    static Tensor createOnes(const std::span<const size_t> data_shape);
+    static Tensor createRandTensor(const std::initializer_list<size_t> shape_list,
                                    InitType mode = InitType::Normal);
     static Tensor createRandTensor(const std::array<size_t, MAX_RANK>& shape,
                                    InitType mode = InitType::Normal);
