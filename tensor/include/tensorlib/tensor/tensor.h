@@ -40,18 +40,18 @@ class Tensor {
     static Tensor createTensor(std::initializer_list<float> data,
                                std::initializer_list<size_t> shape, bool require_grad = false);
     static Tensor createScalar(float data);
-    static Tensor createZeros(const std::initializer_list<size_t>& shape_list);
+    static Tensor createZeros(const std::initializer_list<size_t> shape_list);
     static Tensor createZeros(const std::span<const size_t> span_shape);
     static Tensor createOnes(const std::initializer_list<size_t> shape_list);
     static Tensor createOnes(const std::span<const size_t> data_shape);
     static Tensor createRandTensor(const std::initializer_list<size_t> shape_list,
                                    InitType mode = InitType::Normal);
-    static Tensor createRandTensor(const std::array<size_t, MAX_RANK>& shape,
+    static Tensor createRandTensor(const std::span<const size_t> shape,
                                    InitType mode = InitType::Normal);
     const std::span<const size_t> getShape() const;
     const std::span<const float> view() const;
     void reshape(const std::array<size_t, MAX_RANK>& new_shape);
-    void reshape(const std::initializer_list<size_t>& shape_list);
+    void reshape(const std::initializer_list<size_t> shape_list);
     size_t getTotalSize() const;
     size_t getRank() const;
     void setDataElem(size_t i, float val);

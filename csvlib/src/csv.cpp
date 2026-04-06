@@ -5,9 +5,10 @@
 #include <fstream>
 #include <iosfwd>
 #include <limits>
+#include <span>
 #include <string>
 #include <vector>
-CSVData CSVParser::readCSV(const std::string &path, const char delim = ',') {
+CSVData CSVParser::readCSV(const std::string& path, const char delim) {
     CSVData parsed_data;
     std::ifstream file(path);
     std::string line;
@@ -23,15 +24,13 @@ CSVData CSVParser::readCSV(const std::string &path, const char delim = ',') {
     return parsed_data;
 }
 
-const float *CSVParser::getColumn(const CSVData &csv,
-                                  const std::string &feature) {
+std::span<const float> CSVParser::getColumnData(const CSVData& csv, const std::string& feature) {
     size_t col = csv.feature_index.at(feature);
-    return &csv.feature_data[col * csv.num_rows];
+    return std::span<const float>(&csv.feature_data[col * csv.num_rows], csv.num_rows);
 }
 
-void CSVParser::getFeatures(std::ifstream &file, std::string &line,
-                            std::vector<std::string> &header, const char delim,
-                            CSVData &csv_data) {
+void CSVParser::getFeatures(std::ifstream& file, std::string& line,
+                            std::vector<std::string>& header, const char delim, CSVData& csv_data) {
     csv_data.num_cols = 0;
     std::getline(file, line);
     header.clear();
@@ -40,9 +39,8 @@ void CSVParser::getFeatures(std::ifstream &file, std::string &line,
     for (size_t i = 0; i <= len; i++) {
         if (i == len || line[i] == delim) {
             std::string feature = line.substr(start, i - start);
-            while (!feature.empty() &&
-                   (feature.back() == '\r' || feature.back() == '\n' ||
-                    feature.back() == ' ' || feature.back() == '\t')) {
+            while (!feature.empty() && (feature.back() == '\r' || feature.back() == '\n' ||
+                                        feature.back() == ' ' || feature.back() == '\t')) {
                 feature.pop_back();
             }
             header.emplace_back(feature);
@@ -52,9 +50,8 @@ void CSVParser::getFeatures(std::ifstream &file, std::string &line,
     }
 }
 
-void CSVParser::getFeaturesData(std::ifstream &file, std::string &line,
-                                std::vector<float> &data, size_t &num_rows,
-                                size_t num_cols, const char delim) {
+void CSVParser::getFeaturesData(std::ifstream& file, std::string& line, std::vector<float>& data,
+                                size_t& num_rows, size_t num_cols, const char delim) {
     size_t expected_rows = num_rows;
     size_t row = 0;
     data.resize(num_cols * num_rows);
@@ -72,8 +69,7 @@ void CSVParser::getFeaturesData(std::ifstream &file, std::string &line,
                 if (i == start) {
                     value = std::numeric_limits<float>::quiet_NaN();
                 } else {
-                    std::from_chars((line.data() + start), (line.data() + i),
-                                    value);
+                    std::from_chars((line.data() + start), (line.data() + i), value);
                 }
                 data[col * expected_rows + row] = value;
                 start = i + 1;
@@ -82,8 +78,7 @@ void CSVParser::getFeaturesData(std::ifstream &file, std::string &line,
         }
 
         while (col < num_cols) {
-            data[col * expected_rows + row] =
-                std::numeric_limits<float>::quiet_NaN();
+            data[col * expected_rows + row] = std::numeric_limits<float>::quiet_NaN();
             col++;
         }
 
