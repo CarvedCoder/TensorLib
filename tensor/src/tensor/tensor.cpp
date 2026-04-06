@@ -104,12 +104,12 @@ Tensor Tensor::createScalar(const float data) {
     return createTensor(std::move(arr), {1}, false);
 }
 
-Tensor Tensor::createOnes(std::initializer_list<size_t> shape_list) {
+Tensor Tensor::createOnes(std::initializer_list<size_t> shape_data) {
     std::array<size_t, MAX_RANK> shape{};
     size_t i = 0;
-    if (shape_list.size() > MAX_RANK)
+    if (shape_data.size() > MAX_RANK)
         throw std::invalid_argument("shape list provided is greater than 8");
-    for (const auto dim : shape_list) {
+    for (const auto dim : shape_data) {
         shape[i++] = dim;
     }
     return createOnes(shape);
@@ -157,21 +157,16 @@ Tensor Tensor::createZeros(const std::span<const size_t> shape_data) {
     return createTensor(std::move(arr), shape_data, false);
 }
 
-Tensor Tensor::createZeros(const std::initializer_list<size_t>& shape_list) {
-    return createZeros(std::span<const size_t>(shape_list.begin(), shape_list.size()));
+Tensor Tensor::createZeros(const std::initializer_list<size_t> shape_data) {
+    return createZeros(std::span<const size_t>(shape_data.begin(), shape_data.size()));
 }
 
-Tensor Tensor::createRandTensor(const std::initializer_list<size_t> shape_list,
+Tensor Tensor::createRandTensor(const std::initializer_list<size_t> shape_data,
                                 const InitType mode) {
-    std::array<size_t, MAX_RANK> shape{};
-    size_t i = 0;
-    for (const auto dim : shape_list) {
-        shape[i++] = dim;
-    }
-    return createRandTensor(shape, mode);
+    return createRandTensor(std::span<const size_t>(shape_data.begin(), shape_data.size()), mode);
 }
 
-Tensor Tensor::createRandTensor(const std::array<size_t, MAX_RANK>& shape, const InitType mode) {
+Tensor Tensor::createRandTensor(const std::span<const size_t> shape, const InitType mode) {
     size_t rank = 0;
     for (const auto dim : shape) {
         if (dim == 0)
@@ -237,7 +232,7 @@ Tensor Tensor::createRandTensor(const std::array<size_t, MAX_RANK>& shape, const
             arr[i] = dist(gen);
         }
     }
-    return Tensor(std::move(arr), total_size, shape);
+    return createTensor(std::move(arr), shape);
 }
 
 const std::span<const size_t> Tensor::getShape() const {
@@ -289,10 +284,10 @@ void Tensor::reshape(const std::array<size_t, MAX_RANK>& new_shape) {
     }
 }
 
-void Tensor::reshape(const std::initializer_list<size_t>& new_shape_list) {
+void Tensor::reshape(const std::initializer_list<size_t> new_shape_data) {
     std::array<size_t, MAX_RANK> new_shape{};
     size_t i = 0;
-    for (const auto dim : new_shape_list) {
+    for (const auto dim : new_shape_data) {
         new_shape[i++] = dim;
     }
     reshape(new_shape);

@@ -27,8 +27,8 @@ template <typename Op> Tensor binaryKernel(const Tensor& t1, const Tensor& t2, O
         throw std::invalid_argument("Can't broadcast these two tensors");
 
     // collapseBroadcastDims(info);
-
-    Tensor result = Tensor::createZeros(info.b_Shape);
+    std::span<const size_t> actual_shape(info.b_Shape.data(), info.b_ShapeRank);
+    Tensor result = Tensor::createZeros(actual_shape);
     auto out = result.getMutableDataPtr();
     auto d1 = t1.getDataPtr();
     auto d2 = t2.getDataPtr();
