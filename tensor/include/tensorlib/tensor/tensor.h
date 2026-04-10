@@ -1,5 +1,6 @@
 #ifndef TENSOR_H
 #define TENSOR_H
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -62,6 +63,7 @@ class Tensor {
     const float& operator()(size_t i, size_t j, size_t k) const;
     static void setSeed(uint32_t seed);
     const std::span<const size_t> getStrides() const;
+    std::ranges::minmax_result<float> getMinMax();
     void zeroGrad() const;
 };
 #endif // TENSOR_H

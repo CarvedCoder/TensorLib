@@ -1,5 +1,6 @@
 #ifndef OPS_H
 #define OPS_H
+#include "tensorlib/tensor/tensor.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -66,6 +67,7 @@ template <typename Op> Tensor binaryKernel(const Tensor& t1, const Tensor& t2, O
 
 Tensor operator+(const Tensor& t1, const Tensor& t2);
 Tensor operator-(const Tensor& t1, const Tensor& t2);
+Tensor operator-(const Tensor& lhs, const float rhs);
 Tensor operator*(const Tensor& t1, const Tensor& t2);
 Tensor operator*(const Tensor& lhs, float rhs);
 Tensor matmul(const Tensor& t1, const Tensor& t2);
@@ -75,6 +77,9 @@ float sigmoid(float input_data);
 float relu(float input_data);
 float leakyRelu(float input_data);
 float m_tanh(float input_data);
+Tensor minMaxScaler(const Tensor& t);
+Tensor standardScaler(const Tensor& t);
+Tensor maxScaler(const Tensor& t);
 
 bool sameShape(const std::span<const size_t>& t1_shape, const std::span<const size_t>& t2_shape);
 } // namespace TensorOps

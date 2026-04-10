@@ -1,3 +1,7 @@
+#include "tensorlib/ops/ops.h"
+#include "tensorlib/tensor/tensor.h"
+#include <algorithm>
+#include <cstddef>
 #include <tensorlib/ops.h>
 #include <tensorlib/tensor.h>
 
@@ -67,6 +71,10 @@ BroadcastInfo computeBroadcast(const Tensor& t1, const Tensor& t2) {
 
 Tensor operator+(const Tensor& t1, const Tensor& t2) {
     return binaryKernel(t1, t2, std::plus<float>{});
+}
+
+Tensor operator-(const Tensor& lhs, const float rhs) {
+    return lhs - Tensor::createScalar(rhs);
 }
 
 Tensor operator-(const Tensor& t1, const Tensor& t2) {
@@ -152,4 +160,5 @@ Tensor matmul(const Tensor& t1, const Tensor& t2) {
     }
     return result;
 }
+
 } // namespace TensorOps
