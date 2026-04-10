@@ -268,6 +268,12 @@ const float& Tensor::operator()(const size_t i) const {
     return m_data[i];
 }
 
+std::ranges::minmax_result<float> Tensor::getMinMax() {
+    auto t_view = std::span<const float>(m_data.get(), m_total_size);
+    auto minMax = std::ranges::minmax(t_view);
+    return minMax;
+}
+
 void Tensor::reshape(const std::array<size_t, MAX_RANK>& new_shape) {
     size_t total_elem = 1;
     for (const auto dim : new_shape) {

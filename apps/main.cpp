@@ -7,53 +7,30 @@
 #include <tensorlib/tensor_RNG.h>
 int main() {
     using namespace TensorOps;
+
     TensorRNG::setSeed(std::random_device{}());
-    std::string DataPath = "../../Datasets/Salary_dataset.csv";
+
+    std::string DataPath = "../../Datasets/Salary_dataset_large.csv";
     CSVData csv_data = CSVParser::readCSV(DataPath);
+
     auto x = Data::toTensor(csv_data, "YearsExperience");
     auto y = Data::toTensor(csv_data, "Salary");
-    float mean_x = 0, std_x = 0;
-    for (size_t i = 0; i < x.getTotalSize(); i++)
-        mean_x += x(i);
-    mean_x /= x.getTotalSize();
 
-    for (size_t i = 0; i < x.getTotalSize(); i++)
-        std_x += (x(i) - mean_x) * (x(i) - mean_x);
-    std_x = std::sqrt(std_x / x.getTotalSize());
+    auto norm_x = minMaxScaler(x);
+    auto norm_y = minMaxScaler(y);
 
-    for (size_t i = 0; i < x.getTotalSize(); i++) {
-        x.setDataElem(i, (x(i) - mean_x) / std_x);
-    }
-
-    float mean_y = 0, std_y = 0;
-
-    for (size_t i = 0; i < y.getTotalSize(); i++)
-        mean_y += y(i);
-    mean_y /= y.getTotalSize();
-
-    for (size_t i = 0; i < y.getTotalSize(); i++)
-        std_y += (y(i) - mean_y) * (y(i) - mean_y);
-    std_y = std::sqrt(std_y / y.getTotalSize());
-
-    for (size_t i = 0; i < y.getTotalSize(); i++) {
-        y.setDataElem(i, (y(i) - mean_y) / std_y);
-    }
-    const auto tensor_shape = csv_data.num_rows;
     auto w = Tensor::createRandTensor({1});
     auto b = Tensor::createRandTensor({1});
-    auto y_pred = w * x + b;
-    auto error = TensorOps::calcCost(y, y_pred, LossType::MSE);
-    std::cout << "epoch 0 : " << error << "\n";
 
     float lr = 0.01f;
+    size_t n = norm_x.getTotalSize();
 
     for (int epoch = 0; epoch < 10000; epoch++) {
 
-        auto y_pred = w * x + b;
+        auto y_pred = w * norm_x + b;
+        auto diff = y_pred - norm_y;
 
-        auto diff = y_pred - y;
-
-        auto grad_w = diff * x;
+        auto grad_w = diff * norm_x;
         auto& grad_b = diff;
 
         float dw = 0.0f, db = 0.0f;
@@ -61,16 +38,16 @@ int main() {
         auto gw = grad_w.getDataPtr();
         auto gb = grad_b.getDataPtr();
 
-        size_t n = x.getTotalSize();
-
         for (size_t i = 0; i < n; i++) {
             dw += gw[i];
             db += gb[i];
         }
 
-        dw /= n;
-        db /= n;
+        // 🔥 ADD IT HERE
+        dw = (2.0f / n) * dw;
+        db = (2.0f / n) * db;
 
+        // Update
         float w_val = w(0);
         float b_val = b(0);
 
@@ -81,25 +58,24 @@ int main() {
         b.setDataElem(0, b_val);
 
         if (epoch % 100 == 0) {
-            auto loss = TensorOps::calcCost(y, y_pred, LossType::MSE);
+            auto loss = TensorOps::calcCost(norm_y, y_pred, LossType::MSE);
             std::cout << "Epoch " << epoch << " Loss: " << loss << "\n";
         }
     }
+    auto y_minMax = y.getMinMax();
+    float total_error = 0.0f;
 
-    float x_input = 1.4f;
+    for (size_t i = 0; i < n; i++) {
+        float xi = norm_x(i);
+        float yi = norm_y(i);
 
-    float x_norm = (x_input - mean_x) / std_x;
+        float pred = w.getDataPtr()[0] * xi + b.getDataPtr()[0];
 
-    float w_val = w(0);
-    float b_val = b(0);
+        float real_pred = pred * (y_minMax.max - y_minMax.min) + y_minMax.min;
+        float real_y = y(i);
 
-    float y_pred_norm = w_val * x_norm + b_val;
+        total_error += std::abs(real_pred - real_y);
+    }
 
-    float y_pred_real = y_pred_norm * std_y + mean_y;
-
-    float y_actual = 46206;
-
-    std::cout << "Predicted: " << y_pred_real << "\n";
-    std::cout << "Actual   : " << y_actual << "\n";
-    std::cout << "Error    : " << std::abs(y_pred_real - y_actual) << "\n";
+    std::cout << "Avg Error: " << total_error / n << "\n";
 }
