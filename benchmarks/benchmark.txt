@@ -1,0 +1,439 @@
+----------------------------------------------------------------------------------------------
+Benchmark                                    Time             CPU   Iterations UserCounters...
+----------------------------------------------------------------------------------------------
+BM_TL_Alloc_Zeros/1024                   0.100 us        0.100 us      6973543 bytes_per_second=38.3374Gi/s createZeros 1-D
+BM_TL_Alloc_Zeros/4096                   0.262 us        0.259 us      2700880 bytes_per_second=58.8558Gi/s createZeros 1-D
+BM_TL_Alloc_Zeros/16384                   1.05 us         1.04 us       684739 bytes_per_second=58.7492Gi/s createZeros 1-D
+BM_TL_Alloc_Zeros/65536                   4.14 us         4.09 us       174712 bytes_per_second=59.6292Gi/s createZeros 1-D
+BM_TL_Alloc_Zeros/262144                  19.9 us         19.6 us        36758 bytes_per_second=49.7287Gi/s createZeros 1-D
+BM_TL_Alloc_Zeros/1048576                 73.1 us         72.3 us         9162 bytes_per_second=54.0162Gi/s createZeros 1-D
+BM_TL_Alloc_Zeros/4194304                 1711 us         1677 us          422 bytes_per_second=9.31868Gi/s createZeros 1-D
+BM_TL_Alloc_Ones/1024                    0.121 us        0.120 us      5829934 bytes_per_second=31.7601Gi/s createOnes 1-D
+BM_TL_Alloc_Ones/4096                    0.378 us        0.374 us      1870843 bytes_per_second=40.7813Gi/s createOnes 1-D
+BM_TL_Alloc_Ones/16384                    1.46 us         1.44 us       485519 bytes_per_second=42.2499Gi/s createOnes 1-D
+BM_TL_Alloc_Ones/65536                    5.76 us         5.70 us       122753 bytes_per_second=42.803Gi/s createOnes 1-D
+BM_TL_Alloc_Ones/262144                   25.5 us         25.3 us        27679 bytes_per_second=38.6604Gi/s createOnes 1-D
+BM_TL_Alloc_Ones/1048576                  96.8 us         95.7 us         7261 bytes_per_second=40.8089Gi/s createOnes 1-D
+BM_TL_Alloc_Ones/4194304                  1802 us         1766 us          403 bytes_per_second=8.85004Gi/s createOnes 1-D
+BM_TL_Alloc_Matrix/32                    0.092 us        0.091 us      7697638 bytes_per_second=41.94Gi/s
+BM_TL_Alloc_Matrix/64                    0.265 us        0.262 us      2669499 bytes_per_second=58.1887Gi/s
+BM_TL_Alloc_Matrix/128                    1.05 us         1.04 us       674361 bytes_per_second=58.8089Gi/s
+BM_TL_Alloc_Matrix/256                    4.15 us         4.10 us       170658 bytes_per_second=59.5052Gi/s
+BM_TL_Alloc_Matrix/512                    19.3 us         19.1 us        36639 bytes_per_second=51.0786Gi/s
+BM_TL_Alloc_Matrix/1024                   73.1 us         72.3 us         9182 bytes_per_second=54.0136Gi/s
+BM_EG_Alloc_Zeros/32                     0.036 us        0.035 us     19883603 bytes_per_second=108.347Gi/s
+BM_EG_Alloc_Zeros/64                     0.126 us        0.126 us      5527133 bytes_per_second=121.477Gi/s
+BM_EG_Alloc_Zeros/128                    0.489 us        0.487 us      1442116 bytes_per_second=125.24Gi/s
+BM_EG_Alloc_Zeros/256                     1.91 us         1.91 us       366843 bytes_per_second=127.999Gi/s
+BM_EG_Alloc_Zeros/512                     11.5 us         11.4 us        72199 bytes_per_second=85.3828Gi/s
+BM_EG_Alloc_Zeros/1024                    69.6 us         69.0 us         9267 bytes_per_second=56.5719Gi/s
+BM_Baseline_New_Delete/1024              0.036 us        0.036 us     18160297 bytes_per_second=106.541Gi/s raw new[]/delete[]
+BM_Baseline_New_Delete/4096              0.130 us        0.128 us      5405154 bytes_per_second=118.971Gi/s raw new[]/delete[]
+BM_Baseline_New_Delete/16384             0.511 us        0.503 us      1385156 bytes_per_second=121.253Gi/s raw new[]/delete[]
+BM_Baseline_New_Delete/65536              2.05 us         2.02 us       347965 bytes_per_second=121Gi/s raw new[]/delete[]
+BM_Baseline_New_Delete/262144             11.4 us         11.2 us        63138 bytes_per_second=86.9676Gi/s raw new[]/delete[]
+BM_Baseline_New_Delete/1048576            47.8 us         47.0 us        15055 bytes_per_second=83.1801Gi/s raw new[]/delete[]
+BM_Baseline_New_Delete/4194304            1227 us         1195 us          520 bytes_per_second=13.0791Gi/s raw new[]/delete[]
+BM_TL_Read_Sequential/1024               0.645 us        0.637 us      1097968 bytes_per_second=5.98564Gi/s
+BM_TL_Read_Sequential/4096                2.71 us         2.67 us       262196 bytes_per_second=5.71368Gi/s
+BM_TL_Read_Sequential/16384               11.0 us         10.8 us        64659 bytes_per_second=5.63058Gi/s
+BM_TL_Read_Sequential/65536               45.0 us         44.1 us        15972 bytes_per_second=5.53711Gi/s
+BM_TL_Read_Sequential/262144               176 us          174 us         3980 bytes_per_second=5.60189Gi/s
+BM_TL_Read_Sequential/1048576              730 us          718 us         1008 bytes_per_second=5.44328Gi/s
+BM_TL_Read_Sequential/4194304             2912 us         2853 us          227 bytes_per_second=5.47758Gi/s
+BM_TL_Read_Sequential/16777216           11571 us        11477 us           62 bytes_per_second=5.44558Gi/s
+BM_EG_Read_Sequential/1024               0.639 us        0.637 us      1097713 bytes_per_second=5.987Gi/s
+BM_EG_Read_Sequential/4096                2.68 us         2.68 us       261054 bytes_per_second=5.70386Gi/s
+BM_EG_Read_Sequential/16384               10.9 us         10.8 us        64092 bytes_per_second=5.63967Gi/s
+BM_EG_Read_Sequential/65536               43.4 us         43.3 us        16167 bytes_per_second=5.63791Gi/s
+BM_EG_Read_Sequential/262144               176 us          175 us         4033 bytes_per_second=5.56857Gi/s
+BM_EG_Read_Sequential/1048576              721 us          717 us          954 bytes_per_second=5.44812Gi/s
+BM_EG_Read_Sequential/4194304             3390 us         3360 us          237 bytes_per_second=4.65087Gi/s
+BM_EG_Read_Sequential/16777216           11867 us        11770 us           56 bytes_per_second=5.31031Gi/s
+BM_TL_Write_Sequential/1024              0.299 us        0.298 us      2342718 bytes_per_second=12.7877Gi/s
+BM_TL_Write_Sequential/4096               1.19 us         1.19 us       577778 bytes_per_second=12.8404Gi/s
+BM_TL_Write_Sequential/16384              4.77 us         4.76 us       144890 bytes_per_second=12.8319Gi/s
+BM_TL_Write_Sequential/65536              19.2 us         19.1 us        36785 bytes_per_second=12.7593Gi/s
+BM_TL_Write_Sequential/262144             88.3 us         87.6 us         8928 bytes_per_second=11.15Gi/s
+BM_TL_Write_Sequential/1048576             459 us          455 us         1228 bytes_per_second=8.58162Gi/s
+BM_TL_Write_Sequential/4194304            3101 us         3065 us          357 bytes_per_second=5.09862Gi/s
+BM_TL_Write_Sequential/16777216           8814 us         8715 us           75 bytes_per_second=7.17141Gi/s
+BM_EG_Write_Sequential/1024              0.294 us        0.292 us      2387562 bytes_per_second=13.0433Gi/s
+BM_EG_Write_Sequential/4096               1.17 us         1.16 us       596396 bytes_per_second=13.1375Gi/s
+BM_EG_Write_Sequential/16384              4.69 us         4.60 us       150613 bytes_per_second=13.2552Gi/s
+BM_EG_Write_Sequential/65536              18.9 us         18.8 us        37032 bytes_per_second=12.9602Gi/s
+BM_EG_Write_Sequential/262144             80.2 us         79.7 us         9641 bytes_per_second=12.2604Gi/s
+BM_EG_Write_Sequential/1048576             559 us          552 us         1000 bytes_per_second=7.07519Gi/s
+BM_EG_Write_Sequential/4194304            1710 us         1694 us          481 bytes_per_second=9.22207Gi/s
+BM_EG_Write_Sequential/16777216           7328 us         7254 us           96 bytes_per_second=8.61553Gi/s
+BM_TL_Access_RowMajor/64                  2680 ns         2671 ns       262222 bytes_per_second=5.71373Gi/s row-major (cache friendly)
+BM_TL_Access_RowMajor/128                11037 ns        10987 ns        64693 bytes_per_second=5.55501Gi/s row-major (cache friendly)
+BM_TL_Access_RowMajor/256                44960 ns        44629 ns        16109 bytes_per_second=5.47049Gi/s row-major (cache friendly)
+BM_TL_Access_RowMajor/512               180123 ns       179053 ns         4035 bytes_per_second=5.45405Gi/s row-major (cache friendly)
+BM_TL_Access_RowMajor/1024              736837 ns       733480 ns         1008 bytes_per_second=5.32564Gi/s row-major (cache friendly)
+BM_TL_Access_ColMajor/64                  2686 ns         2675 ns       262259 bytes_per_second=5.70525Gi/s col-major (cache unfriendly)
+BM_TL_Access_ColMajor/128                12719 ns        12657 ns        54248 bytes_per_second=4.82219Gi/s col-major (cache unfriendly)
+BM_TL_Access_ColMajor/256                65866 ns        65471 ns        10890 bytes_per_second=3.72899Gi/s col-major (cache unfriendly)
+BM_TL_Access_ColMajor/512               903369 ns       896738 ns          802 bytes_per_second=1.08902Gi/s col-major (cache unfriendly)
+BM_TL_Access_ColMajor/1024             7002329 ns      6856099 ns           93 bytes_per_second=583.422Mi/s col-major (cache unfriendly)
+BM_Baseline_Memcpy/1024                  0.029 us        0.029 us     24014828 bytes_per_second=130.518Gi/s
+BM_Baseline_Memcpy/4096                  0.119 us        0.119 us      5907946 bytes_per_second=128.166Gi/s
+BM_Baseline_Memcpy/16384                 0.992 us        0.986 us       762233 bytes_per_second=61.8857Gi/s
+BM_Baseline_Memcpy/65536                  6.08 us         5.99 us       100000 bytes_per_second=40.7471Gi/s
+BM_Baseline_Memcpy/262144                 20.7 us         20.4 us        29591 bytes_per_second=47.7934Gi/s
+BM_Baseline_Memcpy/1048576                72.0 us         71.7 us         9587 bytes_per_second=54.4687Gi/s
+BM_Baseline_Memcpy/4194304                5993 us         5964 us          112 bytes_per_second=2.61991Gi/s
+BM_Baseline_Memcpy/16777216              10676 us        10561 us           64 bytes_per_second=5.91792Gi/s
+BM_Baseline_Memcpy/67108864              21158 us        20955 us           33 bytes_per_second=11.9301Gi/s
+BM_TL_EW_Add/1024                        0.168 us        0.168 us      4179224 bytes_per_second=68.3013Gi/s
+BM_TL_EW_Add/4096                        0.611 us        0.609 us      1150149 bytes_per_second=75.1459Gi/s
+BM_TL_EW_Add/16384                        2.86 us         2.86 us       245040 bytes_per_second=64.1137Gi/s
+BM_TL_EW_Add/65536                        12.4 us         12.3 us        61704 bytes_per_second=59.3158Gi/s
+BM_TL_EW_Add/262144                       84.9 us         84.1 us        10000 bytes_per_second=34.8174Gi/s
+BM_TL_EW_Add/1048576                       598 us          591 us         1894 bytes_per_second=19.8147Gi/s
+BM_TL_EW_Add/4194304                      5291 us         5226 us          136 bytes_per_second=8.96933Gi/s
+BM_EG_EW_Add/1024                        0.044 us        0.043 us     15569173 bytes_per_second=264.568Gi/s
+BM_EG_EW_Add/4096                        0.347 us        0.340 us      2145726 bytes_per_second=134.639Gi/s
+BM_EG_EW_Add/16384                        1.82 us         1.80 us       399515 bytes_per_second=101.992Gi/s
+BM_EG_EW_Add/65536                        9.27 us         9.22 us        96160 bytes_per_second=79.4622Gi/s
+BM_EG_EW_Add/262144                       32.8 us         32.6 us        17511 bytes_per_second=89.8344Gi/s
+BM_EG_EW_Add/1048576                       203 us          201 us         3495 bytes_per_second=58.2374Gi/s
+BM_EG_EW_Add/4194304                      5315 us         5243 us          140 bytes_per_second=8.9405Gi/s
+BM_TL_EW_Sub/1024                        0.171 us        0.170 us      3949259 bytes_per_second=67.1402Gi/s
+BM_TL_EW_Sub/4096                        0.642 us        0.633 us      1044162 bytes_per_second=72.3019Gi/s
+BM_TL_EW_Sub/16384                        2.95 us         2.92 us       240245 bytes_per_second=62.7327Gi/s
+BM_TL_EW_Sub/65536                        11.4 us         11.3 us        61040 bytes_per_second=64.7313Gi/s
+BM_TL_EW_Sub/262144                       49.7 us         49.2 us        14267 bytes_per_second=59.5808Gi/s
+BM_TL_EW_Sub/1048576                       373 us          367 us         1914 bytes_per_second=31.8989Gi/s
+BM_TL_EW_Sub/4194304                      8597 us         8402 us           80 bytes_per_second=5.57909Gi/s
+BM_EG_EW_Sub/1024                        0.043 us        0.043 us     16302273 bytes_per_second=266.315Gi/s
+BM_EG_EW_Sub/4096                        0.332 us        0.328 us      2134885 bytes_per_second=139.514Gi/s
+BM_EG_EW_Sub/16384                        1.92 us         1.90 us       369003 bytes_per_second=96.5357Gi/s
+BM_EG_EW_Sub/65536                        7.36 us         7.28 us        95540 bytes_per_second=100.617Gi/s
+BM_EG_EW_Sub/262144                       30.3 us         30.1 us        23208 bytes_per_second=97.2703Gi/s
+BM_EG_EW_Sub/1048576                       223 us          219 us         3144 bytes_per_second=53.4703Gi/s
+BM_EG_EW_Sub/4194304                      4870 us         4756 us          139 bytes_per_second=9.85655Gi/s
+BM_TL_EW_Mul/1024                        0.170 us        0.168 us      4164840 bytes_per_second=68.1191Gi/s
+BM_TL_EW_Mul/4096                        0.620 us        0.614 us      1141214 bytes_per_second=74.5851Gi/s
+BM_TL_EW_Mul/16384                        2.96 us         2.93 us       238680 bytes_per_second=62.4802Gi/s
+BM_TL_EW_Mul/65536                        11.4 us         11.2 us        62773 bytes_per_second=65.1991Gi/s
+BM_TL_EW_Mul/262144                       49.6 us         49.0 us        14332 bytes_per_second=59.7702Gi/s
+BM_TL_EW_Mul/1048576                       369 us          363 us         1922 bytes_per_second=32.2761Gi/s
+BM_TL_EW_Mul/4194304                      8468 us         8275 us           81 bytes_per_second=5.66475Gi/s
+BM_EG_EW_Mul/1024                        0.044 us        0.043 us     16261184 bytes_per_second=265.355Gi/s
+BM_EG_EW_Mul/4096                        0.339 us        0.333 us      2140840 bytes_per_second=137.5Gi/s
+BM_EG_EW_Mul/16384                        1.87 us         1.83 us       391448 bytes_per_second=99.8787Gi/s
+BM_EG_EW_Mul/65536                        7.61 us         7.49 us        93436 bytes_per_second=97.7278Gi/s
+BM_EG_EW_Mul/262144                       40.4 us         39.6 us        19943 bytes_per_second=74.0677Gi/s
+BM_EG_EW_Mul/1048576                       203 us          199 us         3315 bytes_per_second=58.9932Gi/s
+BM_EG_EW_Mul/4194304                      2679 us         2614 us          261 bytes_per_second=17.9354Gi/s
+BM_TL_EW_Div/1024                        0.291 us        0.287 us      2424410 bytes_per_second=39.8085Gi/s
+BM_TL_EW_Div/4096                         1.01 us        0.998 us       700507 bytes_per_second=45.8645Gi/s
+BM_TL_EW_Div/16384                        4.30 us         4.23 us       167312 bytes_per_second=43.3132Gi/s
+BM_TL_EW_Div/65536                        17.3 us         17.2 us        40223 bytes_per_second=42.5178Gi/s
+BM_TL_EW_Div/262144                       76.7 us         76.2 us         8896 bytes_per_second=38.4366Gi/s
+BM_TL_EW_Div/1048576                       397 us          394 us         1634 bytes_per_second=29.7724Gi/s
+BM_TL_EW_Div/4194304                      5168 us         5103 us          121 bytes_per_second=9.18547Gi/s
+BM_EG_EW_Div/1024                        0.108 us        0.107 us      6564716 bytes_per_second=106.971Gi/s
+BM_EG_EW_Div/4096                        0.393 us        0.387 us      1813982 bytes_per_second=118.346Gi/s
+BM_EG_EW_Div/16384                        2.45 us         2.41 us       291248 bytes_per_second=75.8853Gi/s
+BM_EG_EW_Div/65536                        8.01 us         7.88 us        90793 bytes_per_second=92.9268Gi/s
+BM_EG_EW_Div/262144                       45.3 us         44.4 us        18844 bytes_per_second=65.9369Gi/s
+BM_EG_EW_Div/1048576                       271 us          266 us         2791 bytes_per_second=44.1136Gi/s
+BM_EG_EW_Div/4194304                      2551 us         2486 us          258 bytes_per_second=18.854Gi/s
+BM_TL_EW_ScalarMul/1024                  0.421 us        0.415 us      1688899 bytes_per_second=18.3807Gi/s
+BM_TL_EW_ScalarMul/4096                   1.43 us         1.41 us       495953 bytes_per_second=21.6361Gi/s
+BM_TL_EW_ScalarMul/16384                  5.70 us         5.67 us       125867 bytes_per_second=21.5311Gi/s
+BM_TL_EW_ScalarMul/65536                  25.0 us         24.9 us        29235 bytes_per_second=19.6242Gi/s
+BM_TL_EW_ScalarMul/262144                  105 us          104 us         7102 bytes_per_second=18.704Gi/s
+BM_TL_EW_ScalarMul/1048576                 501 us          498 us         1129 bytes_per_second=15.6872Gi/s
+BM_TL_EW_ScalarMul/4194304                4545 us         4495 us          151 bytes_per_second=6.95154Gi/s
+BM_EG_EW_ScalarMul/1024                  0.038 us        0.038 us     18509460 bytes_per_second=200.278Gi/s
+BM_EG_EW_ScalarMul/4096                  0.146 us        0.145 us      4824246 bytes_per_second=210.398Gi/s
+BM_EG_EW_ScalarMul/16384                 0.961 us        0.957 us       734410 bytes_per_second=127.525Gi/s
+BM_EG_EW_ScalarMul/65536                  5.10 us         5.07 us       141365 bytes_per_second=96.2982Gi/s
+BM_EG_EW_ScalarMul/262144                 23.2 us         23.1 us        31098 bytes_per_second=84.4464Gi/s
+BM_EG_EW_ScalarMul/1048576                99.1 us         98.6 us         6650 bytes_per_second=79.2614Gi/s
+BM_EG_EW_ScalarMul/4194304                1669 us         1650 us          392 bytes_per_second=18.9428Gi/s
+BM_TL_EW_Broadcast_MatVec/1                479 ns          477 ns      1466776 bytes_per_second=6.00334Gi/s (R x 256) + (256,) broadcast
+BM_TL_EW_Broadcast_MatVec/32             14300 ns        14239 ns        50364 bytes_per_second=4.35343Gi/s (R x 256) + (256,) broadcast
+BM_TL_EW_Broadcast_MatVec/128            54950 ns        54756 ns        12753 bytes_per_second=4.47614Gi/s (R x 256) + (256,) broadcast
+BM_TL_EW_Broadcast_MatVec/512           223879 ns       222808 ns         3125 bytes_per_second=4.38725Gi/s (R x 256) + (256,) broadcast
+BM_EG_EW_Broadcast_MatVec/1               23.3 ns         23.2 ns     30127129 bytes_per_second=123.133Gi/s (R x 256) + (256,) broadcast
+BM_EG_EW_Broadcast_MatVec/32               475 ns          474 ns      1475779 bytes_per_second=130.884Gi/s (R x 256) + (256,) broadcast
+BM_EG_EW_Broadcast_MatVec/128             1901 ns         1894 ns       366551 bytes_per_second=129.421Gi/s (R x 256) + (256,) broadcast
+BM_EG_EW_Broadcast_MatVec/512             9496 ns         9452 ns        71620 bytes_per_second=103.417Gi/s (R x 256) + (256,) broadcast
+BM_TL_Dot_Manual/1024                    0.643 us        0.640 us      1093175 GFLOP/s=3.19923/s bytes_per_second=11.9181Gi/s
+BM_TL_Dot_Manual/4096                     2.70 us         2.69 us       261801 GFLOP/s=3.04557/s bytes_per_second=11.3456Gi/s
+BM_TL_Dot_Manual/16384                    10.9 us         10.8 us        64761 GFLOP/s=3.02607/s bytes_per_second=11.273Gi/s
+BM_TL_Dot_Manual/65536                    44.0 us         43.8 us        16015 GFLOP/s=2.99427/s bytes_per_second=11.1545Gi/s
+BM_TL_Dot_Manual/262144                    178 us          177 us         4020 GFLOP/s=2.95899/s bytes_per_second=11.0231Gi/s
+BM_TL_Dot_Manual/1048576                   707 us          703 us          860 GFLOP/s=2.98467/s bytes_per_second=11.1188Gi/s
+BM_TL_Dot_Manual/4194304                  2885 us         2859 us          245 GFLOP/s=2.93411/s bytes_per_second=10.9304Gi/s
+BM_EG_Dot/1024                           0.040 us        0.040 us     17535556 GFLOP/s=50.9052/s bytes_per_second=189.637Gi/s
+BM_EG_Dot/4096                           0.207 us        0.207 us      3399754 GFLOP/s=39.6258/s bytes_per_second=147.618Gi/s
+BM_EG_Dot/16384                          0.916 us        0.912 us       770206 GFLOP/s=35.9272/s bytes_per_second=133.839Gi/s
+BM_EG_Dot/65536                           4.04 us         3.98 us       176144 GFLOP/s=32.9304/s bytes_per_second=122.675Gi/s
+BM_EG_Dot/262144                          19.1 us         18.8 us        38335 GFLOP/s=27.8427/s bytes_per_second=103.722Gi/s
+BM_EG_Dot/1048576                         95.7 us         93.9 us         5668 GFLOP/s=22.3316/s bytes_per_second=83.1918Gi/s
+BM_EG_Dot/4194304                          998 us          974 us          635 GFLOP/s=8.61389/s bytes_per_second=32.0893Gi/s
+BM_TL_Norm_Manual/1024                   0.652 us        0.643 us      1087922 bytes_per_second=5.93114Gi/s
+BM_TL_Norm_Manual/4096                    2.71 us         2.68 us       261591 bytes_per_second=5.70053Gi/s
+BM_TL_Norm_Manual/16384                   10.9 us         10.8 us        64752 bytes_per_second=5.64589Gi/s
+BM_TL_Norm_Manual/65536                   44.1 us         43.5 us        16041 bytes_per_second=5.61624Gi/s
+BM_TL_Norm_Manual/262144                   179 us          176 us         4002 bytes_per_second=5.56159Gi/s
+BM_TL_Norm_Manual/1048576                  713 us          702 us          961 bytes_per_second=5.56505Gi/s
+BM_TL_Norm_Manual/4194304                 3130 us         3096 us          218 bytes_per_second=5.04741Gi/s
+BM_EG_Norm/1024                          0.043 us        0.043 us     16110408 bytes_per_second=89.3765Gi/s
+BM_EG_Norm/4096                          0.214 us        0.213 us      3311359 bytes_per_second=71.7163Gi/s
+BM_EG_Norm/16384                         0.896 us        0.893 us       785413 bytes_per_second=68.3429Gi/s
+BM_EG_Norm/65536                          3.68 us         3.66 us       190585 bytes_per_second=66.6238Gi/s
+BM_EG_Norm/262144                         15.3 us         15.2 us        45832 bytes_per_second=64.0867Gi/s
+BM_EG_Norm/1048576                         143 us          141 us        11178 bytes_per_second=27.6563Gi/s
+BM_EG_Norm/4194304                         712 us          703 us         1013 bytes_per_second=22.2107Gi/s
+BM_TL_Loss_MSE/1024                      0.677 us        0.672 us      1011948 bytes_per_second=11.3481Gi/s MSE loss
+BM_TL_Loss_MSE/4096                       2.73 us         2.71 us       257736 bytes_per_second=11.2502Gi/s MSE loss
+BM_TL_Loss_MSE/16384                      11.0 us         10.9 us        64632 bytes_per_second=11.2411Gi/s MSE loss
+BM_TL_Loss_MSE/65536                      44.3 us         43.7 us        15742 bytes_per_second=11.1661Gi/s MSE loss
+BM_TL_Loss_MSE/262144                      180 us          177 us         3986 bytes_per_second=11.0208Gi/s MSE loss
+BM_TL_Loss_MSE/1048576                     747 us          733 us          950 bytes_per_second=10.6633Gi/s MSE loss
+BM_TL_Loss_MSE/4194304                    2868 us         2822 us          247 bytes_per_second=11.0748Gi/s MSE loss
+BM_EG_Loss_MSE/1024                      0.050 us        0.050 us     14089027 bytes_per_second=153.555Gi/s MSE loss
+BM_EG_Loss_MSE/4096                      0.221 us        0.220 us      3193063 bytes_per_second=138.842Gi/s MSE loss
+BM_EG_Loss_MSE/16384                     0.936 us        0.932 us       745717 bytes_per_second=131.006Gi/s MSE loss
+BM_EG_Loss_MSE/65536                      3.98 us         3.96 us       175747 bytes_per_second=123.245Gi/s MSE loss
+BM_EG_Loss_MSE/262144                     17.2 us         17.1 us        40235 bytes_per_second=114.013Gi/s MSE loss
+BM_EG_Loss_MSE/1048576                    80.9 us         80.3 us         9062 bytes_per_second=97.236Gi/s MSE loss
+BM_EG_Loss_MSE/4194304                    2110 us         2079 us          345 bytes_per_second=15.0304Gi/s MSE loss
+BM_TL_Transpose_Square/32                0.374 us        0.373 us      1869704 bytes_per_second=20.4499Gi/s
+BM_TL_Transpose_Square/64                 1.26 us         1.26 us       555114 bytes_per_second=24.2035Gi/s
+BM_TL_Transpose_Square/128                30.7 us         30.6 us        22905 bytes_per_second=3.99021Gi/s
+BM_TL_Transpose_Square/256                 128 us          127 us         5495 bytes_per_second=3.83341Gi/s
+BM_TL_Transpose_Square/512                 701 us          698 us         1034 bytes_per_second=2.79946Gi/s
+BM_TL_Transpose_Square/1024               6103 us         6068 us          101 bytes_per_second=1.28752Gi/s
+BM_TL_Transpose_Square/2048              33297 us        33092 us           17 bytes_per_second=967.015Mi/s
+BM_EG_Transpose_Square/32                0.170 us        0.169 us      4148821 bytes_per_second=45.1062Gi/s
+BM_EG_Transpose_Square/64                0.575 us        0.573 us      1234819 bytes_per_second=53.2844Gi/s
+BM_EG_Transpose_Square/128                13.5 us         13.4 us        52746 bytes_per_second=9.10467Gi/s
+BM_EG_Transpose_Square/256                64.0 us         63.7 us        10635 bytes_per_second=7.66836Gi/s
+BM_EG_Transpose_Square/512                 858 us          853 us          824 bytes_per_second=2.28981Gi/s
+BM_EG_Transpose_Square/1024               6076 us         6049 us          118 bytes_per_second=1.29146Gi/s
+BM_EG_Transpose_Square/2048              25749 us        25620 us           23 bytes_per_second=1.21976Gi/s
+BM_TL_Transpose_Rect/128/1024              274 us          273 us         2601 bytes_per_second=3.58249Gi/s
+BM_TL_Transpose_Rect/1024/128              619 us          616 us         1134 bytes_per_second=1.58651Gi/s
+BM_TL_Transpose_Rect/512/2048             3224 us         3205 us          219 bytes_per_second=2.43734Gi/s
+BM_TL_Transpose_Rect/2048/512             5635 us         5607 us          126 bytes_per_second=1.39337Gi/s
+BM_EG_Transpose_Rect/128/1024              606 us          604 us         1180 bytes_per_second=1.61783Gi/s
+BM_EG_Transpose_Rect/1024/128              142 us          141 us         4812 bytes_per_second=6.90609Gi/s
+BM_EG_Transpose_Rect/512/2048             5738 us         5719 us          114 bytes_per_second=1.36607Gi/s
+BM_EG_Transpose_Rect/2048/512             3162 us         3148 us          208 bytes_per_second=2.48159Gi/s
+BM_TL_Transpose_Double/64                 2574 ns         2564 ns       273498
+BM_TL_Transpose_Double/128               62046 ns        61853 ns        11329
+BM_TL_Transpose_Double/256              251175 ns       250082 ns         2725
+BM_TL_Transpose_Double/512             1395279 ns      1389760 ns          478
+BM_TL_MatMul_Tiny/2                       48.3 ns         48.1 ns     14615998 GFLOP/s=0.332545/s
+BM_TL_MatMul_Tiny/4                       71.0 ns         70.3 ns     10257691 GFLOP/s=1.8203/s
+BM_TL_MatMul_Tiny/6                        142 ns          140 ns      5339410 GFLOP/s=3.08362/s
+BM_TL_MatMul_Tiny/8                        194 ns          193 ns      3753364 GFLOP/s=5.31225/s
+BM_TL_MatMul_Tiny/10                       311 ns          310 ns      2271257 GFLOP/s=6.46134/s
+BM_TL_MatMul_Tiny/12                       378 ns          377 ns      1852759 GFLOP/s=9.17411/s
+BM_TL_MatMul_Tiny/14                       600 ns          598 ns      1188969 GFLOP/s=9.18208/s
+BM_TL_MatMul_Tiny/16                       701 ns          698 ns       996548 GFLOP/s=11.7342/s
+BM_EG_MatMul_Tiny/2                       19.2 ns         19.1 ns     36579110 GFLOP/s=0.838123/s
+BM_EG_MatMul_Tiny/4                       23.8 ns         23.7 ns     29268988 GFLOP/s=5.4076/s
+BM_EG_MatMul_Tiny/6                       67.9 ns         67.7 ns     10482599 GFLOP/s=6.3817/s
+BM_EG_MatMul_Tiny/8                       72.8 ns         72.5 ns      9655860 GFLOP/s=14.1221/s
+BM_EG_MatMul_Tiny/10                       153 ns          149 ns      5026258 GFLOP/s=13.395/s
+BM_EG_MatMul_Tiny/12                       155 ns          151 ns      4362114 GFLOP/s=22.8942/s
+BM_EG_MatMul_Tiny/14                       293 ns          290 ns      2441183 GFLOP/s=18.8922/s
+BM_EG_MatMul_Tiny/16                       162 ns          161 ns      4387687 GFLOP/s=50.9337/s
+BM_TL_MatMul_Small/16                    0.693 us        0.691 us      1001186 GFLOP/s=11.8547/s
+BM_TL_MatMul_Small/32                     3.78 us         3.77 us       183927 GFLOP/s=17.3871/s
+BM_TL_MatMul_Small/64                     23.0 us         22.9 us        31011 GFLOP/s=22.8921/s
+BM_TL_MatMul_Small/128                     170 us          169 us         4176 GFLOP/s=24.8404/s
+BM_EG_MatMul_Small/16                    0.161 us        0.160 us      4343511 GFLOP/s=51.119/s
+BM_EG_MatMul_Small/32                    0.813 us        0.809 us       869977 GFLOP/s=81.0455/s
+BM_EG_MatMul_Small/64                     4.78 us         4.77 us       146978 GFLOP/s=110.024/s
+BM_EG_MatMul_Small/128                    35.7 us         35.6 us        20056 GFLOP/s=117.971/s
+BM_TL_MatMul_Medium/128                  0.170 ms        0.169 ms         4101 GFLOP/s=24.8133/s
+BM_TL_MatMul_Medium/192                  0.529 ms        0.527 ms         1307 GFLOP/s=26.8559/s
+BM_TL_MatMul_Medium/256                   1.43 ms         1.42 ms          494 GFLOP/s=23.5576/s
+BM_TL_MatMul_Medium/384                   5.94 ms         5.87 ms          143 GFLOP/s=19.2839/s
+BM_TL_MatMul_Medium/512                   14.2 ms         14.1 ms           51 GFLOP/s=19.0452/s
+BM_EG_MatMul_Medium/128                  0.035 ms        0.035 ms        19821 GFLOP/s=120.454/s
+BM_EG_MatMul_Medium/192                  0.119 ms        0.118 ms         6235 GFLOP/s=120.033/s
+BM_EG_MatMul_Medium/256                  0.286 ms        0.284 ms         2478 GFLOP/s=118.221/s
+BM_EG_MatMul_Medium/384                  0.976 ms        0.970 ms          688 GFLOP/s=116.73/s
+BM_EG_MatMul_Medium/512                   2.18 ms         2.17 ms          326 GFLOP/s=123.858/s
+BM_TL_MatMul_Large/512                    11.1 ms         11.1 ms           63 GFLOP/s=24.2478/s
+BM_TL_MatMul_Large/768                    38.0 ms         37.8 ms           18 GFLOP/s=23.997/s
+BM_TL_MatMul_Large/1024                   99.2 ms         98.8 ms            7 GFLOP/s=21.744/s
+BM_EG_MatMul_Large/512                    2.09 ms         2.08 ms          332 GFLOP/s=128.893/s
+BM_EG_MatMul_Large/768                    6.94 ms         6.92 ms          102 GFLOP/s=130.965/s
+BM_EG_MatMul_Large/1024                   16.9 ms         16.8 ms           41 GFLOP/s=127.63/s
+BM_TL_MatMul_Pow2/64                     22484 ns        22425 ns        31201 GFLOP/s=23.38/s
+BM_TL_MatMul_Pow2/128                   168188 ns       167543 ns         4206 GFLOP/s=25.0342/s
+BM_TL_MatMul_Pow2/256                  1368479 ns      1361231 ns          524 GFLOP/s=24.6501/s
+BM_TL_MatMul_Pow2/512                 11630490 ns     11580311 ns           65 GFLOP/s=23.1803/s
+BM_EG_MatMul_Pow2/64                      4841 ns         4825 ns       145330 GFLOP/s=108.67/s
+BM_EG_MatMul_Pow2/128                    34815 ns        34716 ns        19642 GFLOP/s=120.818/s
+BM_EG_MatMul_Pow2/256                   258883 ns       257949 ns         2673 GFLOP/s=130.081/s
+BM_EG_MatMul_Pow2/512                  2048770 ns      2040560 ns          340 GFLOP/s=131.55/s
+BM_TL_MatMul_NonPow2/63                  28094 ns        28012 ns        25011 GFLOP/s=17.8527/s
+BM_TL_MatMul_NonPow2/127                193324 ns       192713 ns         3633 GFLOP/s=21.2584/s
+BM_TL_MatMul_NonPow2/255               1443235 ns      1438442 ns          488 GFLOP/s=23.0546/s
+BM_TL_MatMul_NonPow2/511              12961489 ns     12893503 ns           59 GFLOP/s=20.6977/s
+BM_EG_MatMul_NonPow2/63                   6391 ns         6339 ns       110115 GFLOP/s=78.8973/s
+BM_EG_MatMul_NonPow2/127                 40170 ns        39509 ns        18083 GFLOP/s=103.691/s
+BM_EG_MatMul_NonPow2/255                303837 ns       300701 ns         2334 GFLOP/s=110.285/s
+BM_EG_MatMul_NonPow2/511               2491211 ns      2455118 ns          282 GFLOP/s=108.698/s
+BM_TL_MatMul_NeuralNet/1/512/512          24.2 us         24.1 us        33120 GFLOP/s=21.7711/s
+BM_TL_MatMul_NeuralNet/32/512/512          712 us          709 us          975 GFLOP/s=23.6742/s
+BM_TL_MatMul_NeuralNet/128/512/512        2935 us         2920 us          247 GFLOP/s=22.9808/s
+BM_TL_MatMul_NeuralNet/32/784/128          259 us          258 us         2669 GFLOP/s=24.8608/s
+BM_TL_MatMul_NeuralNet/64/2048/1024      12793 us        12732 us           50 GFLOP/s=21.0832/s
+BM_TL_MatMul_NeuralNet/256/512/256        3309 us         3283 us          200 GFLOP/s=20.4392/s
+BM_TL_MatMul_NeuralNet/128/64/1           18.8 us         18.7 us        36632 GFLOP/s=0.875215/s
+BM_EG_MatMul_NeuralNet/1/512/512          10.8 us         10.8 us        66853 GFLOP/s=48.6758/s
+BM_EG_MatMul_NeuralNet/32/512/512          193 us          191 us         4413 GFLOP/s=87.7428/s
+BM_EG_MatMul_NeuralNet/128/512/512         542 us          537 us         1082 GFLOP/s=125.006/s
+BM_EG_MatMul_NeuralNet/32/784/128         60.2 us         59.3 us        12204 GFLOP/s=108.233/s
+BM_EG_MatMul_NeuralNet/64/2048/1024       2983 us         2923 us          196 GFLOP/s=91.8351/s
+BM_EG_MatMul_NeuralNet/256/512/256         561 us          558 us         1283 GFLOP/s=120.273/s
+BM_EG_MatMul_NeuralNet/128/64/1          0.297 us        0.295 us      2354707 GFLOP/s=55.5313/s
+BM_TL_MatMul_MatVec/64/64                 9.56 us         9.51 us        71661 GFLOP/s=0.861489/s
+BM_TL_MatMul_MatVec/128/256               84.1 us         83.8 us         8353 GFLOP/s=0.781929/s
+BM_TL_MatMul_MatVec/512/512                684 us          682 us         1026 GFLOP/s=0.768649/s
+BM_TL_MatMul_MatVec/1024/1024             2815 us         2772 us          254 GFLOP/s=0.756422/s
+BM_EG_MatMul_MatVec/64/64                0.120 us        0.118 us      6007993 GFLOP/s=69.1757/s
+BM_EG_MatMul_MatVec/128/256               1.06 us         1.05 us       691720 GFLOP/s=62.7062/s
+BM_EG_MatMul_MatVec/512/512               14.0 us         13.7 us        46016 GFLOP/s=38.3962/s
+BM_EG_MatMul_MatVec/1024/1024             43.7 us         43.2 us        14676 GFLOP/s=48.5907/s
+BM_TL_Chain_AddMulSub/1024               0.573 us        0.564 us      1250695 bytes_per_second=47.3622Gi/s (a+b)*c-d  [3 allocs, 3 passes]
+BM_TL_Chain_AddMulSub/4096                1.96 us         1.94 us       341281 bytes_per_second=55.1781Gi/s (a+b)*c-d  [3 allocs, 3 passes]
+BM_TL_Chain_AddMulSub/16384               9.91 us         9.70 us        73814 bytes_per_second=44.0371Gi/s (a+b)*c-d  [3 allocs, 3 passes]
+BM_TL_Chain_AddMulSub/65536               42.6 us         42.0 us        15561 bytes_per_second=40.7006Gi/s (a+b)*c-d  [3 allocs, 3 passes]
+BM_TL_Chain_AddMulSub/262144               172 us          170 us         4038 bytes_per_second=40.205Gi/s (a+b)*c-d  [3 allocs, 3 passes]
+BM_TL_Chain_AddMulSub/1048576             2500 us         2473 us          281 bytes_per_second=11.0588Gi/s (a+b)*c-d  [3 allocs, 3 passes]
+BM_EG_Chain_AddMulSub/1024               0.073 us        0.073 us      9580545 bytes_per_second=365.961Gi/s (a+b)*c-d  [1 alloc, 1 pass via expr templates]
+BM_EG_Chain_AddMulSub/4096               0.603 us        0.596 us      1168353 bytes_per_second=179.236Gi/s (a+b)*c-d  [1 alloc, 1 pass via expr templates]
+BM_EG_Chain_AddMulSub/16384               2.57 us         2.55 us       273441 bytes_per_second=167.374Gi/s (a+b)*c-d  [1 alloc, 1 pass via expr templates]
+BM_EG_Chain_AddMulSub/65536               12.4 us         12.4 us        53347 bytes_per_second=138.3Gi/s (a+b)*c-d  [1 alloc, 1 pass via expr templates]
+BM_EG_Chain_AddMulSub/262144              55.3 us         55.0 us        10000 bytes_per_second=124.379Gi/s (a+b)*c-d  [1 alloc, 1 pass via expr templates]
+BM_EG_Chain_AddMulSub/1048576              569 us          563 us         1253 bytes_per_second=48.5833Gi/s (a+b)*c-d  [1 alloc, 1 pass via expr templates]
+BM_TL_Chain_Sum4/1024                    0.560 us        0.555 us      1273039 a+b+c+d  [3 allocs]
+BM_TL_Chain_Sum4/4096                     1.87 us         1.86 us       375430 a+b+c+d  [3 allocs]
+BM_TL_Chain_Sum4/16384                    8.17 us         8.14 us        87017 a+b+c+d  [3 allocs]
+BM_TL_Chain_Sum4/65536                    44.2 us         43.9 us        15061 a+b+c+d  [3 allocs]
+BM_TL_Chain_Sum4/262144                    327 us          321 us         3477 a+b+c+d  [3 allocs]
+BM_TL_Chain_Sum4/1048576                  2540 us         2503 us          283 a+b+c+d  [3 allocs]
+BM_EG_Chain_Sum4/1024                    0.073 us        0.073 us      9684369 a+b+c+d  [1 alloc, 1 pass]
+BM_EG_Chain_Sum4/4096                    0.605 us        0.602 us      1172062 a+b+c+d  [1 alloc, 1 pass]
+BM_EG_Chain_Sum4/16384                    2.67 us         2.66 us       264016 a+b+c+d  [1 alloc, 1 pass]
+BM_EG_Chain_Sum4/65536                    11.7 us         11.6 us        59269 a+b+c+d  [1 alloc, 1 pass]
+BM_EG_Chain_Sum4/262144                   51.5 us         51.3 us        14603 a+b+c+d  [1 alloc, 1 pass]
+BM_EG_Chain_Sum4/1048576                   504 us          499 us         1614 a+b+c+d  [1 alloc, 1 pass]
+BM_TL_Chain_MatMul3/32                    7.65 us         7.62 us        93086 GFLOP/s=8.59502/s
+BM_TL_Chain_MatMul3/64                    46.2 us         45.9 us        15520 GFLOP/s=11.417/s
+BM_TL_Chain_MatMul3/128                    332 us          327 us         2125 GFLOP/s=12.8307/s
+BM_TL_Chain_MatMul3/256                   3031 us         2955 us          219 GFLOP/s=11.3549/s
+BM_EG_Chain_MatMul3/32                    1.71 us         1.68 us       416503 GFLOP/s=38.9391/s
+BM_EG_Chain_MatMul3/64                    10.5 us         10.3 us        67863 GFLOP/s=50.9034/s
+BM_EG_Chain_MatMul3/128                   78.8 us         77.6 us         9281 GFLOP/s=54.0406/s
+BM_EG_Chain_MatMul3/256                    644 us          635 us         1158 GFLOP/s=52.8757/s
+BM_TL_LinearRegression_Step/32            20.7 us         20.6 us        34470 GFLOP/s=0.798343/s linear regression SGD step
+BM_TL_LinearRegression_Step/128            111 us          111 us         6225 GFLOP/s=0.593999/s linear regression SGD step
+BM_TL_LinearRegression_Step/512            498 us          492 us         1418 GFLOP/s=0.533312/s linear regression SGD step
+BM_EG_LinearRegression_Step/32           0.202 us        0.202 us      3480438 GFLOP/s=81.3886/s linear regression SGD step
+BM_EG_LinearRegression_Step/128           1.04 us         1.04 us       678482 GFLOP/s=63.3917/s linear regression SGD step
+BM_EG_LinearRegression_Step/512           4.37 us         4.35 us       155821 GFLOP/s=60.3552/s linear regression SGD step
+BM_TL_MLP_Forward/1                       19.0 us         18.8 us        39261 GFLOP/s=25.0243/s 3-layer MLP (784→256→128→10)
+BM_TL_MLP_Forward/32                       618 us          608 us          844 GFLOP/s=24.7256/s 3-layer MLP (784→256→128→10)
+BM_TL_MLP_Forward/128                     2746 us         2683 us          270 GFLOP/s=22.3954/s 3-layer MLP (784→256→128→10)
+BM_TL_MLP_Forward/256                     5754 us         5612 us          100 GFLOP/s=21.4157/s 3-layer MLP (784→256→128→10)
+BM_EG_MLP_Forward/1                       10.3 us         10.2 us        67354 GFLOP/s=45.8848/s 3-layer MLP (784→256→128→10)
+BM_EG_MLP_Forward/32                       194 us          191 us         3815 GFLOP/s=78.6226/s 3-layer MLP (784→256→128→10)
+BM_EG_MLP_Forward/128                      619 us          605 us         1092 GFLOP/s=99.2774/s 3-layer MLP (784→256→128→10)
+BM_EG_MLP_Forward/256                     1065 us         1053 us          638 GFLOP/s=114.093/s 3-layer MLP (784→256→128→10)
+BM_TL_Attention/16                        5.53 us         5.43 us       129234 GFLOP/s=12.0607/s scaled dot-product attention (d_k=64)
+BM_TL_Attention/32                        16.0 us         15.9 us        43006 GFLOP/s=16.4551/s scaled dot-product attention (d_k=64)
+BM_TL_Attention/64                        53.4 us         53.2 us        13165 GFLOP/s=19.6979/s scaled dot-product attention (d_k=64)
+BM_TL_Attention/128                        204 us          204 us         3424 GFLOP/s=20.5964/s scaled dot-product attention (d_k=64)
+BM_TL_Attention/256                        819 us          815 us          855 GFLOP/s=20.5765/s scaled dot-product attention (d_k=64)
+BM_EG_Attention/16                        1.09 us         1.08 us       642162 GFLOP/s=60.4094/s scaled dot-product attention (d_k=64)
+BM_EG_Attention/32                        3.39 us         3.36 us       223843 GFLOP/s=77.9801/s scaled dot-product attention (d_k=64)
+BM_EG_Attention/64                        10.9 us         10.8 us        65475 GFLOP/s=96.9174/s scaled dot-product attention (d_k=64)
+BM_EG_Attention/128                       50.2 us         50.0 us        13978 GFLOP/s=83.9689/s scaled dot-product attention (d_k=64)
+BM_EG_Attention/256                        204 us          203 us         3430 GFLOP/s=82.8415/s scaled dot-product attention (d_k=64)
+BM_TL_MinMaxScaler/1024                  0.543 us        0.541 us      1302108 bytes_per_second=14.1112Gi/s minmax scaler
+BM_TL_MinMaxScaler/4096                   2.20 us         2.19 us       318678 bytes_per_second=13.9216Gi/s minmax scaler
+BM_TL_MinMaxScaler/16384                  8.87 us         8.84 us        79183 bytes_per_second=13.8098Gi/s minmax scaler
+BM_TL_MinMaxScaler/65536                  38.5 us         38.2 us        19322 bytes_per_second=12.7799Gi/s minmax scaler
+BM_TL_MinMaxScaler/262144                  150 us          149 us         4714 bytes_per_second=13.07Gi/s minmax scaler
+BM_TL_MinMaxScaler/1048576                 698 us          693 us         1022 bytes_per_second=11.2667Gi/s minmax scaler
+BM_TL_MinMaxScaler/4194304                5238 us         5184 us          168 bytes_per_second=6.0287Gi/s minmax scaler
+BM_EG_MinMaxScaler/1024                  0.153 us        0.152 us      4641774 bytes_per_second=50.1553Gi/s minmax scaler
+BM_EG_MinMaxScaler/4096                  0.533 us        0.531 us      1320726 bytes_per_second=57.5098Gi/s minmax scaler
+BM_EG_MinMaxScaler/16384                  2.41 us         2.40 us       291297 bytes_per_second=50.803Gi/s minmax scaler
+BM_EG_MinMaxScaler/65536                  10.7 us         10.7 us        66596 bytes_per_second=45.7972Gi/s minmax scaler
+BM_EG_MinMaxScaler/262144                 48.3 us         48.1 us        14980 bytes_per_second=40.6468Gi/s minmax scaler
+BM_EG_MinMaxScaler/1048576                 217 us          216 us         3223 bytes_per_second=36.2355Gi/s minmax scaler
+BM_EG_MinMaxScaler/4194304                3137 us         3103 us          207 bytes_per_second=10.0711Gi/s minmax scaler
+BM_TL_Activation_Sigmoid/1024             3.61 us         3.60 us       195114 bytes_per_second=2.11915Gi/s sigmoid (scalar loop)
+BM_TL_Activation_Sigmoid/4096             13.5 us         13.5 us        51643 bytes_per_second=2.26884Gi/s sigmoid (scalar loop)
+BM_TL_Activation_Sigmoid/16384            53.3 us         53.2 us        13091 bytes_per_second=2.29551Gi/s sigmoid (scalar loop)
+BM_TL_Activation_Sigmoid/65536             211 us          210 us         3325 bytes_per_second=2.32088Gi/s sigmoid (scalar loop)
+BM_TL_Activation_Sigmoid/262144            846 us          843 us          825 bytes_per_second=2.31705Gi/s sigmoid (scalar loop)
+BM_TL_Activation_Sigmoid/1048576          3383 us         3370 us          208 bytes_per_second=2.31802Gi/s sigmoid (scalar loop)
+BM_EG_Activation_Sigmoid/1024            0.565 us        0.564 us      1242066 bytes_per_second=13.5313Gi/s sigmoid (Eigen::Array vectorised)
+BM_EG_Activation_Sigmoid/4096             2.17 us         2.16 us       324134 bytes_per_second=14.1242Gi/s sigmoid (Eigen::Array vectorised)
+BM_EG_Activation_Sigmoid/16384            8.91 us         8.87 us        81051 bytes_per_second=13.758Gi/s sigmoid (Eigen::Array vectorised)
+BM_EG_Activation_Sigmoid/65536            35.6 us         35.5 us        19764 bytes_per_second=13.7726Gi/s sigmoid (Eigen::Array vectorised)
+BM_EG_Activation_Sigmoid/262144            158 us          157 us         4981 bytes_per_second=12.4349Gi/s sigmoid (Eigen::Array vectorised)
+BM_EG_Activation_Sigmoid/1048576           906 us          897 us          596 bytes_per_second=8.71249Gi/s sigmoid (Eigen::Array vectorised)
+BM_TL_Activation_ReLU/1024                1.00 us        0.996 us       720302 bytes_per_second=7.66012Gi/s relu (scalar loop)
+BM_TL_Activation_ReLU/4096                4.00 us         3.97 us       178745 bytes_per_second=7.67971Gi/s relu (scalar loop)
+BM_TL_Activation_ReLU/16384               15.6 us         15.5 us        45524 bytes_per_second=7.87392Gi/s relu (scalar loop)
+BM_TL_Activation_ReLU/65536               61.8 us         61.6 us        11367 bytes_per_second=7.93283Gi/s relu (scalar loop)
+BM_TL_Activation_ReLU/262144               247 us          246 us         2841 bytes_per_second=7.92681Gi/s relu (scalar loop)
+BM_TL_Activation_ReLU/1048576              995 us          991 us          710 bytes_per_second=7.88233Gi/s relu (scalar loop)
+BM_EG_Activation_ReLU/1024               0.053 us        0.053 us     13433539 bytes_per_second=144.345Gi/s relu (Eigen cwiseMax)
+BM_EG_Activation_ReLU/4096               0.136 us        0.136 us      5273800 bytes_per_second=224.713Gi/s relu (Eigen cwiseMax)
+BM_EG_Activation_ReLU/16384              0.952 us        0.949 us       645350 bytes_per_second=128.597Gi/s relu (Eigen cwiseMax)
+BM_EG_Activation_ReLU/65536               5.16 us         5.14 us       100000 bytes_per_second=95.003Gi/s relu (Eigen cwiseMax)
+BM_EG_Activation_ReLU/262144              22.9 us         22.8 us        31941 bytes_per_second=85.7807Gi/s relu (Eigen cwiseMax)
+BM_EG_Activation_ReLU/1048576             87.0 us         86.6 us         8267 bytes_per_second=90.2222Gi/s relu (Eigen cwiseMax)
+BM_TL_Activation_Tanh/1024                4.06 us         4.05 us       173718 bytes_per_second=1.88326Gi/s tanh (scalar loop)
+BM_TL_Activation_Tanh/4096                16.2 us         16.2 us        43259 bytes_per_second=1.88487Gi/s tanh (scalar loop)
+BM_TL_Activation_Tanh/16384               66.4 us         66.2 us        10574 bytes_per_second=1.84353Gi/s tanh (scalar loop)
+BM_TL_Activation_Tanh/65536                266 us          265 us         2642 bytes_per_second=1.84332Gi/s tanh (scalar loop)
+BM_TL_Activation_Tanh/262144              1064 us         1060 us          660 bytes_per_second=1.84234Gi/s tanh (scalar loop)
+BM_TL_Activation_Tanh/1048576             4100 us         4076 us          176 bytes_per_second=1.91664Gi/s tanh (scalar loop)
+BM_EG_Activation_Tanh/1024               0.301 us        0.300 us      2313253 bytes_per_second=25.3905Gi/s tanh (Eigen::Array vectorised)
+BM_EG_Activation_Tanh/4096                1.08 us         1.08 us       651790 bytes_per_second=28.2799Gi/s tanh (Eigen::Array vectorised)
+BM_EG_Activation_Tanh/16384               4.49 us         4.48 us       156197 bytes_per_second=27.2542Gi/s tanh (Eigen::Array vectorised)
+BM_EG_Activation_Tanh/65536               18.6 us         18.6 us        38548 bytes_per_second=26.3031Gi/s tanh (Eigen::Array vectorised)
+BM_EG_Activation_Tanh/262144              72.4 us         72.1 us         9687 bytes_per_second=27.0765Gi/s tanh (Eigen::Array vectorised)
+BM_EG_Activation_Tanh/1048576              293 us          291 us         2366 bytes_per_second=26.8039Gi/s tanh (Eigen::Array vectorised)
+BM_TL_MatMul_CacheCold/256                1.33 ms         1.32 ms          530 GFLOP/s=25.332/s cache cold (ClobberMemory before)
+BM_TL_MatMul_CacheCold/512                10.9 ms         10.9 ms           64 GFLOP/s=24.6769/s cache cold (ClobberMemory before)
+BM_TL_MatMul_CacheCold/1024                100 ms         99.9 ms            7 GFLOP/s=21.5064/s cache cold (ClobberMemory before)
+BM_EG_MatMul_CacheCold/256               0.264 ms        0.263 ms         2667 GFLOP/s=127.651/s cache cold (ClobberMemory before)
+BM_EG_MatMul_CacheCold/512                2.09 ms         2.08 ms          334 GFLOP/s=128.997/s cache cold (ClobberMemory before)
+BM_EG_MatMul_CacheCold/1024               17.6 ms         17.5 ms           38 GFLOP/s=122.442/s cache cold (ClobberMemory before)
+BM_TL_MatMul_CacheWarm/128                 163 us          163 us         4308 GFLOP/s=25.7521/s cache warm (pre-warmed A, B)
+BM_TL_MatMul_CacheWarm/256                1330 us         1326 us          531 GFLOP/s=25.3119/s cache warm (pre-warmed A, B)
+BM_TL_MatMul_CacheWarm/512               12839 us        12769 us           64 GFLOP/s=21.022/s cache warm (pre-warmed A, B)
+BM_EG_MatMul_CacheWarm/128                35.7 us         35.5 us        19928 GFLOP/s=118.141/s cache warm (pre-warmed A, B)
+BM_EG_MatMul_CacheWarm/256                 263 us          262 us         2656 GFLOP/s=128.129/s cache warm (pre-warmed A, B)
+BM_EG_MatMul_CacheWarm/512                2064 us         2057 us          340 GFLOP/s=130.53/s cache warm (pre-warmed A, B)
+BM_TL_EdgeCase_MixedMagnitude            11687 ns        11650 ns        60023 large (1e10) + small (1e-10)
+BM_EG_EdgeCase_MixedMagnitude             7134 ns         7110 ns        99079 large (1e10) + small (1e-10)
+BM_TL_EdgeCase_RepeatedAdd              622718 ns       621100 ns         1129 1000 × acc += delta  [1000 allocs]
+BM_EG_EdgeCase_RepeatedAdd              133058 ns       132707 ns         5299 1000 × acc += delta  [in-place, 0 allocs]
+BM_TL_Reshape/64                          22.8 ns         22.7 ns     30813218 reshape (metadata only, no copy)
+BM_TL_Reshape/256                         22.6 ns         22.6 ns     30979300 reshape (metadata only, no copy)
+BM_TL_Reshape/1024                        22.6 ns         22.6 ns     31020432 reshape (metadata only, no copy)
+BM_EG_Reshape_Map/64                     0.028 ns        0.028 ns   1000000000 Map<>() remapping (metadata only)
+BM_EG_Reshape_Map/256                    0.028 ns        0.028 ns   1000000000 Map<>() remapping (metadata only)
+BM_EG_Reshape_Map/1024                   0.028 ns        0.028 ns   1000000000 Map<>() remapping (metadata only)

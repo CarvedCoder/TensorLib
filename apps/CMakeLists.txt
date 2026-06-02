@@ -1,5 +1,5 @@
-add_executable(main
-    main.cpp
+add_executable(linearRegression
+    linearRegression.cpp
 )
 
 add_executable(test
@@ -7,7 +7,7 @@ add_executable(test
 )
 
 
-target_link_libraries(main PRIVATE tensorlib csvlib dataLoader)
+target_link_libraries(linearRegression PRIVATE tensorlib csvlib dataLoader)
 
 target_link_libraries(test PRIVATE tensorlib csvlib dataLoader)
 
