@@ -70,6 +70,17 @@ BroadcastInfo computeBroadcast(const Tensor& t1, const Tensor& t2) {
 }
 
 Tensor operator+(const Tensor& t1, const Tensor& t2) {
+    if (sameShape(t1.getShape(), t2.getShape())) {
+        Tensor result = Tensor::createZeros(t1.getShape());
+        size_t n = t1.getTotalSize();
+        const float* __restrict__ s1 = t1.getDataPtr();
+        const float* __restrict__ s2 = t2.getDataPtr();
+        float* __restrict__ out = result.getMutableDataPtr();
+        for (size_t i = 0; i < n; i++) {
+            out[i] = s1[i] + s2[i];
+        }
+        return result;
+    }
     return binaryKernel(t1, t2, std::plus<float>{});
 }
 
@@ -78,14 +89,50 @@ Tensor operator-(const Tensor& lhs, const float rhs) {
 }
 
 Tensor operator-(const Tensor& t1, const Tensor& t2) {
+    if (sameShape(t1.getShape(), t2.getShape())) {
+        Tensor result = Tensor::createZeros(t1.getShape());
+        size_t n = t1.getTotalSize();
+        const float* __restrict__ s1 = t1.getDataPtr();
+        const float* __restrict__ s2 = t2.getDataPtr();
+        float* __restrict__ out = result.getMutableDataPtr();
+        for (size_t i = 0; i < n; i++) {
+            out[i] = s1[i] - s2[i];
+        }
+        return result;
+    }
+
     return binaryKernel(t1, t2, std::minus<float>{});
 }
 
 Tensor operator*(const Tensor& t1, const Tensor& t2) {
+    if (sameShape(t1.getShape(), t2.getShape())) {
+        Tensor result = Tensor::createZeros(t1.getShape());
+        size_t n = t1.getTotalSize();
+        const float* __restrict__ s1 = t1.getDataPtr();
+        const float* __restrict__ s2 = t2.getDataPtr();
+        float* __restrict__ out = result.getMutableDataPtr();
+        for (size_t i = 0; i < n; i++) {
+            out[i] = s1[i] * s2[i];
+        }
+        return result;
+    }
+
     return binaryKernel(t1, t2, std::multiplies<float>{});
 }
 
 Tensor operator/(const Tensor& t1, const Tensor& t2) {
+    if (sameShape(t1.getShape(), t2.getShape())) {
+        Tensor result = Tensor::createZeros(t1.getShape());
+        size_t n = t1.getTotalSize();
+        const float* __restrict__ s1 = t1.getDataPtr();
+        const float* __restrict__ s2 = t2.getDataPtr();
+        float* __restrict__ out = result.getMutableDataPtr();
+        for (size_t i = 0; i < n; i++) {
+            out[i] = s1[i] / s2[i];
+        }
+        return result;
+    }
+
     return binaryKernel(t1, t2, std::divides<float>{});
 }
 
@@ -157,6 +204,19 @@ Tensor matmul(const Tensor& t1, const Tensor& t2) {
                     a_ik * data_t2[k * strides_t2[0] + j * strides_t2[1]];
             }
         }
+    }
+    return result;
+}
+Tensor minMaxScaler(const Tensor& t) {
+    auto minMax = std::ranges::minmax(t.view());
+    auto min = minMax.min;
+    auto max = minMax.max;
+    auto t_data = t.getDataPtr();
+    const size_t t_size = t.getTotalSize();
+    auto result = Tensor::createZeros(t.getShape());
+    auto mutData_result = result.getMutableDataPtr();
+    for (size_t i = 0; i < t_size; i++) {
+        mutData_result[i] = (t_data[i] - min) / (max - min);
     }
     return result;
 }

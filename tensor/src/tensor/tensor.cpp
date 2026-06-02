@@ -1,24 +1,16 @@
-#include "tensorlib/tensor/tensor.h"
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <initializer_list>
 #include <memory>
-#include <span>
 #include <stdexcept>
 #include <tensorlib/tensor.h>
 #include <tensorlib/tensor_RNG.h>
-#include <utility>
+#include <tensorlib/tensor_impl.h>
 
-Tensor::Tensor(std::unique_ptr<float[]> input_data, const size_t size,
-               const std::array<size_t, MAX_RANK>& shape_in)
-    : m_data(std::move(input_data)), m_shape(shape_in), m_total_size(size) {
+Tensor::Tensor(std::shared_ptr<TensorImpl>& tensorData) : TensorData(std::move(tensorData)) {}
 
-    m_rank = calculateRank();
-    m_stride = calculateStrides();
-}
-
-size_t Tensor::calculateRank() {
+size_t TensorImpl::calculateRank() {
     size_t rank = 0;
     for (const auto dim : m_shape) {
         if (dim == 0)
@@ -27,7 +19,7 @@ size_t Tensor::calculateRank() {
     }
     return rank;
 }
-std::array<size_t, MAX_RANK> Tensor::calculateStrides() {
+std::array<size_t, MAX_RANK> TensorImpl::calculateStrides() {
     std::array<size_t, MAX_RANK> strides{};
     if (m_rank == 0) {
         return strides;
@@ -48,14 +40,18 @@ Tensor Tensor::createTensor(std::unique_ptr<float[]> input_data, std::span<const
     std::array<size_t, MAX_RANK> shape_arr{};
     size_t total_size = 1;
     for (size_t i = 0; i < shape_data.size(); i++) {
-        if (shape_data[i] == 0)
-            throw std::invalid_argument("Shape data provided can't be zero");
+        if (shape_data[i] == 0) {
+            total_size = 0;
+            shape_arr[i] = 0;
+            break;
+        }
         shape_arr[i] = shape_data[i];
         total_size *= shape_data[i];
     }
     if (require_grad) {
     }
-    return Tensor(std::move(input_data), total_size, shape_arr);
+    auto t = std::make_shared<TensorImpl>(std::move(input_data), total_size, shape_arr);
+    return Tensor(t);
 }
 
 Tensor Tensor::createTensor(std::span<const float> input_data, std::span<const size_t> shape_data,
@@ -66,16 +62,27 @@ Tensor Tensor::createTensor(std::span<const float> input_data, std::span<const s
     std::array<size_t, MAX_RANK> shape_arr{};
     size_t total_size = 1;
     for (size_t i = 0; i < shape_data.size(); i++) {
-        if (shape_data[i] == 0)
-            throw std::invalid_argument("Shape data provided can't be zero");
+        if (shape_data[i] == 0) {
+            if (shape_data[i] == 0) {
+                total_size = 0;
+                shape_arr[i] = 0;
+                break;
+            }
+        }
         shape_arr[i] = shape_data[i];
         total_size *= shape_data[i];
     }
-    auto unique_arr = std::make_unique<float[]>(total_size);
-    std::copy(input_data.begin(), input_data.end(), unique_arr.get());
+
+    if (total_size > 0) {
+        auto unique_arr = std::make_unique<float[]>(total_size);
+        std::copy(input_data.begin(), input_data.end(), unique_arr.get());
+        auto t = std::make_shared<TensorImpl>(std::move(unique_arr), total_size, shape_arr);
+        return Tensor(t);
+    }
     if (require_grad) {
     }
-    return Tensor(std::move(unique_arr), total_size, shape_arr);
+    auto t = std::make_shared<TensorImpl>(std::move(nullptr), total_size, shape_arr);
+    return Tensor(t);
 }
 
 Tensor Tensor::createTensor(std::unique_ptr<float[]> input_data,
@@ -236,40 +243,43 @@ Tensor Tensor::createRandTensor(const std::span<const size_t> shape, const InitT
 }
 
 const std::span<const size_t> Tensor::getShape() const {
-    return std::span<const size_t>(m_shape.data(), m_rank);
+    return std::span<const size_t>(TensorData->m_shape.data(), TensorData->m_rank);
 }
 
 size_t Tensor::getRank() const {
-    return m_rank;
+    return TensorData->m_rank;
 }
 size_t Tensor::getTotalSize() const {
-    return m_total_size;
+    return TensorData->m_total_size;
 }
 
 void Tensor::setDataElem(const size_t i, const float val) {
-    m_data[i] = val;
+    TensorData->m_data[i] = val;
 }
 
 float* Tensor::getMutableDataPtr() const {
-    return m_data.get();
+    return TensorData->m_data.get();
 }
 
 const float* Tensor::getDataPtr() const {
-    return m_data.get();
+    return TensorData->m_data.get();
+}
+bool Tensor::requiresGrad() const {
+    return TensorData->m_require_grad;
 }
 
 const std::span<const float> Tensor::view() const {
-    return std::span<const float>(m_data.get(), m_total_size);
+    return std::span<const float>(TensorData->m_data.get(), TensorData->m_total_size);
 }
 
 const float& Tensor::operator()(const size_t i) const {
-    if (i >= m_total_size)
+    if (i >= TensorData->m_total_size)
         throw std::out_of_range("index 0-D out of range");
-    return m_data[i];
+    return TensorData->m_data[i];
 }
 
 std::ranges::minmax_result<float> Tensor::getMinMax() {
-    auto t_view = std::span<const float>(m_data.get(), m_total_size);
+    auto t_view = std::span<const float>(TensorData->m_data.get(), TensorData->m_total_size);
     auto minMax = std::ranges::minmax(t_view);
     return minMax;
 }
@@ -281,10 +291,10 @@ void Tensor::reshape(const std::array<size_t, MAX_RANK>& new_shape) {
             break;
         total_elem *= dim;
     }
-    if (total_elem == m_total_size) {
-        m_shape = new_shape;
-        m_rank = calculateRank();
-        m_stride = calculateStrides();
+    if (total_elem == TensorData->m_total_size) {
+        TensorData->m_shape = new_shape;
+        TensorData->m_rank = TensorData->calculateRank();
+        TensorData->m_strides = TensorData->calculateStrides();
     } else {
         throw std::invalid_argument("reshape doesn't contain all the elements");
     }
@@ -300,22 +310,23 @@ void Tensor::reshape(const std::initializer_list<size_t> new_shape_data) {
 }
 
 const float& Tensor::operator()(const size_t i, const size_t j) const {
-    if (i >= m_shape[0] || j >= m_shape[1])
+    if (i >= TensorData->m_shape[0] || j >= TensorData->m_shape[1])
         throw std::out_of_range("index 2-D out of range");
-    return m_data[i * m_stride[0] + j * m_stride[1]];
+    return TensorData->m_data[i * TensorData->m_strides[0] + j * TensorData->m_strides[1]];
 }
 
 const float& Tensor::operator()(const size_t i, const size_t j, const size_t k) const {
-    if (i >= m_shape[0] || j >= m_shape[1] || k >= m_shape[2]) {
+    if (i >= TensorData->m_shape[0] || j >= TensorData->m_shape[1] || k >= TensorData->m_shape[2]) {
         throw std::out_of_range("index 3-D out of range");
     }
-    return m_data[i * m_stride[0] + j * m_stride[1] + k * m_stride[2]];
+    return TensorData->m_data[i * TensorData->m_strides[0] + j * TensorData->m_strides[1] +
+                              k * TensorData->m_strides[2]];
 }
 
 const std::span<const size_t> Tensor::getStrides() const {
-    return std::span<const size_t>(m_stride.data(), m_rank);
+    return std::span<const size_t>(TensorData->m_strides.data(), TensorData->m_rank);
 }
 
 void Tensor::zeroGrad() const {
-    std::fill_n(m_grad.get(), m_total_size, 0.0f);
+    std::fill_n(TensorData->m_grad.get(), TensorData->m_total_size, 0.0f);
 }

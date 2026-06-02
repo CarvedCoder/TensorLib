@@ -9,7 +9,7 @@ target_include_directories(dataLoader
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_compile_features(dataLoader PUBLIC cxx_std_20)
+target_compile_features(dataLoader PUBLIC cxx_std_23)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 target_compile_options(csvlib PRIVATE -Wall -Wextra)

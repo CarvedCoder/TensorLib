@@ -20,8 +20,9 @@ struct BroadcastInfo {
 };
 namespace TensorOps {
 
-BroadcastInfo computeBroadcast(const Tensor& t1, const Tensor& t2);
+bool sameShape(const std::span<const size_t>& t1_shape, const std::span<const size_t>& t2_shape);
 
+BroadcastInfo computeBroadcast(const Tensor& t1, const Tensor& t2);
 template <typename Op> Tensor binaryKernel(const Tensor& t1, const Tensor& t2, Op op) {
     auto info = computeBroadcast(t1, t2);
     if (!info.Possible)
@@ -61,6 +62,8 @@ template <typename Op> Tensor binaryKernel(const Tensor& t1, const Tensor& t2, O
             idx[static_cast<size_t>(d)] = 0;
         }
     }
+    if (t1.requiresGrad() || t2.requiresGrad()) {
+    }
 
     return result;
 }
@@ -70,6 +73,7 @@ Tensor operator-(const Tensor& t1, const Tensor& t2);
 Tensor operator-(const Tensor& lhs, const float rhs);
 Tensor operator*(const Tensor& t1, const Tensor& t2);
 Tensor operator*(const Tensor& lhs, float rhs);
+Tensor operator/(const Tensor& t1, const Tensor& t2);
 Tensor matmul(const Tensor& t1, const Tensor& t2);
 Tensor transpose2D(const Tensor& t);
 float calcCost(const Tensor& t1, const Tensor& t2, LossType mode = LossType::SSE);
@@ -81,6 +85,5 @@ Tensor minMaxScaler(const Tensor& t);
 Tensor standardScaler(const Tensor& t);
 Tensor maxScaler(const Tensor& t);
 
-bool sameShape(const std::span<const size_t>& t1_shape, const std::span<const size_t>& t2_shape);
 } // namespace TensorOps
 #endif // OPS_H

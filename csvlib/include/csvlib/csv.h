@@ -1,10 +1,14 @@
 #ifndef CSV_H
 #define CSV_H
 
+#include <charconv>
 #include <cstddef>
+#include <expected>
 #include <fstream>
 #include <span>
 #include <string>
+#include <string_view>
+#include <system_error>
 #include <unordered_map>
 #include <vector>
 
@@ -18,6 +22,21 @@ struct CSVData {
 
 class CSVParser {
   public:
+    template <typename T>
+    [[nodiscard]] static inline std::expected<T, std::errc> parseNum(std::string_view line,
+                                                                     size_t start, size_t i) {
+        T value{};
+        auto [ptr, err] = std::from_chars((line.data() + start), (line.data() + i), value);
+
+        if (err != std::errc{}) {
+            return std::unexpected(err);
+        }
+
+        if (ptr != line.data() + i) {
+            return std::unexpected(std::errc::invalid_argument);
+        }
+        return value;
+    }
     static CSVData readCSV(const std::string& path, const char delim = ',');
 
     static std::span<const float> getColumnData(const CSVData& csv, const std::string& feature);
