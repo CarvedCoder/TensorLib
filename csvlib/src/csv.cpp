@@ -1,4 +1,3 @@
-#include <charconv>
 #include <cstddef>
 #include <cstdlib>
 #include <csvlib/csv.h>
@@ -6,6 +5,7 @@
 #include <iosfwd>
 #include <limits>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <vector>
 CSVData CSVParser::readCSV(const std::string& path, const char delim) {
@@ -56,6 +56,9 @@ void CSVParser::getFeaturesData(std::ifstream& file, std::string& line, std::vec
     size_t row = 0;
     data.resize(num_cols * num_rows);
     while (std::getline(file, line)) {
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
         size_t col = 0;
         size_t start = 0;
         size_t len = line.size();
@@ -69,7 +72,11 @@ void CSVParser::getFeaturesData(std::ifstream& file, std::string& line, std::vec
                 if (i == start) {
                     value = std::numeric_limits<float>::quiet_NaN();
                 } else {
-                    std::from_chars((line.data() + start), (line.data() + i), value);
+                    auto res = parseNum<float>(line, start, i);
+                    if (!res) {
+                        throw std::invalid_argument(std::make_error_code(res.error()).message());
+                    }
+                    value = *res;
                 }
                 data[col * expected_rows + row] = value;
                 start = i + 1;

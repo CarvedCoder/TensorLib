@@ -7,27 +7,16 @@
 #include <initializer_list>
 #include <memory>
 #include <span>
-constexpr int MAX_RANK = 8;
+#include <tensorlib/tensor_impl.h>
 
 enum class InitType { Normal, He, Xavier, XavierUniform, HeUniform };
 
 class Tensor {
   private:
-    std::unique_ptr<float[]> m_data;
-    std::array<size_t, MAX_RANK> m_shape;
-    std::array<size_t, MAX_RANK> m_stride;
-    size_t m_total_size = 0;
-    // bool require_grad = false;
-    std::unique_ptr<float[]> m_grad;
-    size_t m_rank;
-    std::array<size_t, MAX_RANK> calculateStrides();
-    size_t calculateRank();
-
-  private:
-    Tensor(std::unique_ptr<float[]> input_data, size_t size,
-           const std::array<size_t, MAX_RANK>& shape);
+    std::shared_ptr<TensorImpl> TensorData;
 
   public:
+    explicit Tensor(std::shared_ptr<TensorImpl>& TensorData);
     static Tensor createTensor(std::unique_ptr<float[]> input_data,
                                std::span<const size_t> shape_data, bool require_grad = false);
 
@@ -58,6 +47,7 @@ class Tensor {
     void setDataElem(size_t i, float val);
     const float* getDataPtr() const;
     float* getMutableDataPtr() const;
+    bool requiresGrad() const;
     const float& operator()(size_t i) const;
     const float& operator()(size_t i, size_t j) const;
     const float& operator()(size_t i, size_t j, size_t k) const;

@@ -5,3 +5,5 @@ build-release/
 .cache/
 .DS_Store
 compile_commands.json
+.DS_Store_hidden_message
+release-build/

@@ -43,7 +43,6 @@ int main() {
             db += gb[i];
         }
 
-        // 🔥 ADD IT HERE
         dw = (2.0f / n) * dw;
         db = (2.0f / n) * db;
 
@@ -78,4 +77,8 @@ int main() {
     }
 
     std::cout << "Avg Error: " << total_error / n << "\n";
+    auto mm = y.getMinMax();
+
+    std::cout << "Min Salary: " << mm.min << '\n';
+    std::cout << "Max Salary: " << mm.max << '\n';
 }
