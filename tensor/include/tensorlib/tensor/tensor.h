@@ -54,6 +54,9 @@ class Tensor {
     static void setSeed(uint32_t seed);
     const std::span<const size_t> getStrides() const;
     std::ranges::minmax_result<float> getMinMax();
+    std::shared_ptr<TensorImpl> getImpl() const;
     void zeroGrad() const;
+    const float* getGradPtr() const;
+    float* getMutableGradPtr() const;
 };
 #endif // TENSOR_H

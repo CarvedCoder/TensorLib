@@ -1,11 +1,40 @@
 #include "tensorlib/ops/ops.h"
 #include "tensorlib/tensor/tensor.h"
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
+#include <stdexcept>
 #include <tensorlib/ops.h>
 #include <tensorlib/tensor.h>
 
 namespace TensorOps {
+
+float m_tanh(float input_data) {
+    return std::tanh(input_data);
+}
+
+Tensor softmax(const Tensor& t) {
+    auto t_max = std::ranges::max(t.view());
+    Tensor output = Tensor::createZeros(t.getShape());
+    auto stride_t = t.getStrides();
+    auto output_mutPtr = output.getMutableDataPtr();
+    auto t_dataPtr = t.getDataPtr();
+
+    for (size_t i = 0; i < t.getShape()[0]; i++) {
+        float exp_sum{};
+        for (size_t j = 0; j < t.getShape()[1]; j++) {
+            // softmax(x) = softmax(x-c) iff c is max(x)
+            output_mutPtr[i * stride_t[0] + j * stride_t[1]] =
+                std::exp(t_dataPtr[i * stride_t[0] + j * stride_t[1]] - t_max);
+            exp_sum += output_mutPtr[i * stride_t[0] + j * stride_t[1]];
+        }
+        for (size_t j = 0; j < t.getShape()[1]; j++) {
+            output_mutPtr[i * stride_t[0] + j * stride_t[1]] =
+                output_mutPtr[i * stride_t[0] + j * stride_t[1]] / exp_sum;
+        }
+    }
+    return output;
+}
 
 float sigmoid(const float input_data) {
     return 1 / (1 + std::exp(-input_data));
@@ -17,10 +46,6 @@ float relu(const float input_data) {
 
 float leakyRelu(const float input_data) {
     return input_data > 0 ? input_data : 0.01f;
-}
-
-float m_tanh(const float input_data) {
-    return std::tanh(input_data);
 }
 
 bool sameShape(const std::span<const size_t>& t1_shape, const std::span<const size_t>& t2_shape) {
