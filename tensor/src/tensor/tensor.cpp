@@ -1,3 +1,4 @@
+#include "tensorlib/tensor/tensor.h"
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -48,9 +49,12 @@ Tensor Tensor::createTensor(std::unique_ptr<float[]> input_data, std::span<const
         shape_arr[i] = shape_data[i];
         total_size *= shape_data[i];
     }
-    if (require_grad) {
-    }
     auto t = std::make_shared<TensorImpl>(std::move(input_data), total_size, shape_arr);
+    if (require_grad) {
+        t->m_require_grad = true;
+        t->ensureGrad();
+    }
+
     return Tensor(t);
 }
 
@@ -77,11 +81,15 @@ Tensor Tensor::createTensor(std::span<const float> input_data, std::span<const s
         auto unique_arr = std::make_unique<float[]>(total_size);
         std::copy(input_data.begin(), input_data.end(), unique_arr.get());
         auto t = std::make_shared<TensorImpl>(std::move(unique_arr), total_size, shape_arr);
+        if (require_grad) {
+            t->m_require_grad = true;
+            t->ensureGrad();
+        }
+
         return Tensor(t);
     }
-    if (require_grad) {
-    }
     auto t = std::make_shared<TensorImpl>(std::move(nullptr), total_size, shape_arr);
+
     return Tensor(t);
 }
 
@@ -327,6 +335,18 @@ const std::span<const size_t> Tensor::getStrides() const {
     return std::span<const size_t>(TensorData->m_strides.data(), TensorData->m_rank);
 }
 
+std::shared_ptr<TensorImpl> Tensor::getImpl() const {
+    return TensorData;
+}
+
 void Tensor::zeroGrad() const {
-    std::fill_n(TensorData->m_grad.get(), TensorData->m_total_size, 0.0f);
+    if (TensorData->m_grad)
+        std::fill_n(TensorData->m_grad.get(), TensorData->m_total_size, 0.0f);
+}
+
+const float* Tensor::getGradPtr() const {
+    return TensorData->m_grad.get();
+}
+float* Tensor::getMutableGradPtr() const {
+    return TensorData->m_grad.get();
 }

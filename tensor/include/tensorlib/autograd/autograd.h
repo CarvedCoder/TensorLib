@@ -2,6 +2,7 @@
 #define AUTOGRAD_H
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <tensorlib/tensor.h>
@@ -11,10 +12,13 @@
 class Tensor;
 
 struct Node {
-    std::vector<std::shared_ptr<Tensor>> inputs;
+    std::vector<std::shared_ptr<TensorImpl>> inputs;
+    std::weak_ptr<TensorImpl> output;
     std::string op_name;
     bool is_leaf = false;
-    size_t id;
+    size_t id{};
+    std::function<void(const float* upstream_grad, size_t size)> backward_fn;
+    size_t output_size{};
 };
 
 class Autograd {
@@ -23,11 +27,13 @@ class Autograd {
     inline static size_t next_id{};
 
   public:
-    static std::shared_ptr<Node> makeNode(std::vector<std::shared_ptr<Tensor>>& Nodes,
-                                          std::string& op_name, bool is_leaf = false);
-    static void clearExpired();
+    static std::shared_ptr<Node> makeNode(std::vector<std::shared_ptr<TensorImpl>>& inputs,
+                                          std::shared_ptr<TensorImpl>& output, std::string op_name,
+                                          std::function<void(const float*, size_t)> backward_fn,
+                                          bool is_leaf = false);
+    void clearExpired();
 
-    const std::unordered_map<size_t, std::weak_ptr<Node>> getRegistry() const;
+    static const std::unordered_map<size_t, std::weak_ptr<Node>>& getRegistry();
 };
 
 #endif // !AUTOGRAD_H

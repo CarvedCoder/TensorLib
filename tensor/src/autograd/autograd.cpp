@@ -1,15 +1,21 @@
-#include "tensorlib/autograd/autograd.h"
+#include <functional>
 #include <memory>
 #include <tensorlib/autograd.h>
+#include <utility>
 
-std::shared_ptr<Node> Autograd::makeNode(std::vector<std::shared_ptr<Tensor>>& Nodes,
-                                         std::string& op_name, bool is_leaf) {
+std::shared_ptr<Node> Autograd::makeNode(std::vector<std::shared_ptr<TensorImpl>>& inputs,
+                                         std::shared_ptr<TensorImpl>& output, std::string op_name,
+                                         std::function<void(const float*, size_t)> backward_fn,
+                                         bool is_leaf) {
     auto node = std::make_shared<Node>();
 
     node->id = next_id++;
-    node->inputs = Nodes;
-    node->op_name = op_name;
+    node->inputs = inputs;
+    node->output = output;
+    node->op_name = std::move(op_name);
+    node->backward_fn = std::move(backward_fn);
     node->is_leaf = is_leaf;
+    node->output_size = output->m_total_size;
 
     registry[node->id] = node;
 
@@ -22,6 +28,6 @@ void Autograd::clearExpired() {
     }
 }
 
-const std::unordered_map<size_t, std::weak_ptr<Node>> Autograd::getRegistry() const {
+const std::unordered_map<size_t, std::weak_ptr<Node>>& Autograd::getRegistry() {
     return registry;
 }

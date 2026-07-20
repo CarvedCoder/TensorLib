@@ -1,11 +1,8 @@
 #ifndef OPS_H
 #define OPS_H
 #include "tensorlib/tensor/tensor.h"
-#include <algorithm>
 #include <array>
-#include <cmath>
 #include <cstddef>
-#include <functional>
 #include <span>
 #include <stdexcept>
 #include <tensorlib/tensor.h>
@@ -19,6 +16,8 @@ struct BroadcastInfo {
     std::array<size_t, MAX_RANK> b_Stride_t2;
 };
 namespace TensorOps {
+
+Tensor softmax(const Tensor& t);
 
 bool sameShape(const std::span<const size_t>& t1_shape, const std::span<const size_t>& t2_shape);
 
