@@ -5,6 +5,10 @@ add_library(tensorlib STATIC
         src/tensor/tensor_RNG.cpp
         src/tensor/tensor_impl.cpp
         src/autograd/autograd.cpp
+        src/tokenizer/tokenizer.cpp
+        src/tokenizer/impl/bpe.cpp
+        src/tokenizer/impl/utf8.cpp
+        src/tokenizer/trainer.cpp
 )
 
 target_include_directories(tensorlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
