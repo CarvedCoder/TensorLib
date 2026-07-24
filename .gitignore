@@ -7,3 +7,5 @@ build-release/
 compile_commands.json
 .DS_Store_hidden_message
 release-build/
+input.txt
+csv/
