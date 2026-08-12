@@ -6,7 +6,6 @@
 constexpr int MAX_RANK = 8;
 
 struct Node;
-
 struct TensorImpl {
     std::unique_ptr<float[]> m_data;
     std::array<size_t, MAX_RANK> m_shape{};
@@ -24,5 +23,4 @@ struct TensorImpl {
     void ensureGrad();
     void accumulatedGrad(const float* incoming, size_t size);
 };
-
 #endif // !TENSOR_IMPL_H

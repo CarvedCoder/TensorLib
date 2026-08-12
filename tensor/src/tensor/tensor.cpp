@@ -3,7 +3,9 @@
 #include <array>
 #include <cstddef>
 #include <initializer_list>
+#include <mdspan>
 #include <memory>
+#include <span>
 #include <stdexcept>
 #include <tensorlib/tensor.h>
 #include <tensorlib/tensor_RNG.h>
@@ -250,6 +252,18 @@ Tensor Tensor::createRandTensor(const std::span<const size_t> shape, const InitT
     return createTensor(std::move(arr), shape);
 }
 
+Tensor Tensor::concat(std::span<Tensor> tensors) {
+    size_t rows = tensors[0].TensorData->m_shape[0];
+    size_t cols = tensors.size();
+    Tensor result = Tensor::createZeros({rows, cols});
+    auto dst = result.getMutableDataPtr();
+    for (size_t r = 0; r < rows; r++) {
+        for (size_t c = 0; c < cols; c++) {
+            dst[r * cols + c] = tensors[c].getDataPtr()[r];
+        }
+    }
+    return result;
+}
 const std::span<const size_t> Tensor::getShape() const {
     return std::span<const size_t>(TensorData->m_shape.data(), TensorData->m_rank);
 }
@@ -276,10 +290,22 @@ bool Tensor::requiresGrad() const {
     return TensorData->m_require_grad;
 }
 
+const std::mdspan<const float, std::dextents<size_t, 1>, std::layout_stride>
+Tensor::view(size_t index, Axis axis) const {
+    using extents_t = std::dextents<size_t, 1>;
+    if (axis == Axis::Row) {
+        return std::mdspan(TensorData->m_data.get() + (index * TensorData->m_strides[0]),
+                           std::layout_stride::mapping{extents_t{TensorData->m_shape[1]},
+                                                       std::array{TensorData->m_strides[1]}});
+    }
+    return std::mdspan(TensorData->m_data.get() + (index * TensorData->m_strides[1]),
+                       std::layout_stride::mapping{extents_t{TensorData->m_shape[0]},
+                                                   std::array{TensorData->m_strides[0]}});
+}
+
 const std::span<const float> Tensor::view() const {
     return std::span<const float>(TensorData->m_data.get(), TensorData->m_total_size);
 }
-
 const float& Tensor::operator()(const size_t i) const {
     if (i >= TensorData->m_total_size)
         throw std::out_of_range("index 0-D out of range");

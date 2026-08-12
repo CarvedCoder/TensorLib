@@ -5,12 +5,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <mdspan>
 #include <memory>
 #include <span>
 #include <tensorlib/tensor_impl.h>
 
 enum class InitType { Normal, He, Xavier, XavierUniform, HeUniform };
-
+enum class Axis { Row, Col };
 class Tensor {
   private:
     std::shared_ptr<TensorImpl> TensorData;
@@ -38,7 +39,10 @@ class Tensor {
                                    InitType mode = InitType::Normal);
     static Tensor createRandTensor(const std::span<const size_t> shape,
                                    InitType mode = InitType::Normal);
+    static Tensor concat(std::span<Tensor> tensors);
     const std::span<const size_t> getShape() const;
+    const std::mdspan<const float, std::dextents<size_t, 1>, std::layout_stride>
+    view(size_t index, Axis axis) const;
     const std::span<const float> view() const;
     void reshape(const std::array<size_t, MAX_RANK>& new_shape);
     void reshape(const std::initializer_list<size_t> shape_list);
