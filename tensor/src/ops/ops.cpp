@@ -198,7 +198,7 @@ float calcCost(const Tensor& t1, const Tensor& t2, const LossType mode) {
         const float diff = data_t1[i] - data_t2[i];
         result += diff * diff;
     }
-    return mode == LossType::SSE ? result : result / static_cast<float>(size);
+    return mode == LossType::SSE ? result : result / (2.0f * static_cast<float>(size));
 }
 
 Tensor matmul(const Tensor& t1, const Tensor& t2) {

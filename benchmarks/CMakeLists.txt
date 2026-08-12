@@ -24,6 +24,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 
         # Suppress benchmark-induced warnings
         -Wno-unused-result
+        -g
     )
 elseif(MSVC)
     target_compile_options(bench_tensor PRIVATE

@@ -1,5 +1,6 @@
 add_library(csvlib STATIC
     src/csv.cpp
+    src/dataframe.cpp
 )
 
 target_include_directories(csvlib

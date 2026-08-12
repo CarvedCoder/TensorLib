@@ -5,9 +5,9 @@
 #include <tensorlib/tensor.h>
 #include <vector>
 
-namespace Data {
+namespace DataLoader {
 Tensor toTensor(const CSVData& csv_data, const std::string& feature);
 Tensor toTensor(std::vector<float>& data);
-} // namespace Data
+} // namespace DataLoader
 
 #endif // !LOADER_H
