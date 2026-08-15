@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <print>
 #include <tensorlib/ops.h>
 #include <tensorlib/tensor.h>
 #include <tensorlib/tokenizer.h>
@@ -9,6 +10,10 @@ int main(int argc, char* argv[]) {
     namespace tokenizer = tensorlib::tokenizer;
     std::filesystem::path Data = "../input.txt";
     tokenizer::Tokenizer tok;
-    tokenizer::BPETrainer trainer;
-    tok = trainer.train(Data, vocab_size);
+    // tokenizer::BPETrainer trainer;
+    // tok = trainer.train(Data, vocab_size);
+    tok.load("../bpe/trained.bin");
+    auto str1 = tok.encode("hey bro , i'm encoding this message");
+    auto str = tok.decode(str1);
+    std::print("Decoded string : '{}'", str);
 }

@@ -1,11 +1,24 @@
 #include "tensorlib/ops/ops.h"
+#include "tensorlib/autograd/autograd.h"
 #include "tensorlib/tensor/tensor.h"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <stdexcept>
+#include <tensorlib/autograd.h>
 #include <tensorlib/ops.h>
 #include <tensorlib/tensor.h>
+
+namespace TensorOps::utility {
+inline void attachNode(std::vector<std::shared_ptr<TensorImpl>> inputs, Tensor& result,
+                       std::string op_name, std::function<void(const float*, size_t)> backward_fn) {
+    auto impl = result.getImpl();
+    impl->m_require_grad = true;
+    impl->m_is_leaf = false;
+    impl->ensureGrad();
+    impl->m_grad_fn = Autograd::makeNode(inputs, impl, std::move(op_name), std::move(backward_fn));
+}
+} // namespace TensorOps::utility
 
 namespace TensorOps {
 
@@ -103,6 +116,17 @@ Tensor operator+(const Tensor& t1, const Tensor& t2) {
         float* __restrict__ out = result.getMutableDataPtr();
         for (size_t i = 0; i < n; i++) {
             out[i] = s1[i] + s2[i];
+        }
+        if (t1.requiresGrad() || t2.requiresGrad()) {
+            auto t1_impl = t1.getImpl();
+            auto t2_impl = t2.getImpl();
+            utility::attachNode({t1_impl, t2_impl}, result, "add",
+                                [t1_impl, t2_impl](const float* upstream, size_t size) {
+                                    if (t1_impl->m_require_grad)
+                                        t1_impl->accumulatedGrad(upstream, size);
+                                    if (t2_impl->m_require_grad)
+                                        t2_impl->accumulatedGrad(upstream, size);
+                                });
         }
         return result;
     }
