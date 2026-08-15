@@ -32,5 +32,6 @@ class Tokenizer {
     std::string decode(std::span<const uint16_t> ids) const;
     void save(const std::filesystem::path& path) const;
     void load(const std::filesystem::path& path);
+    const std::vector<uint8_t>& vocab(uint16_t id) const;
 };
 } // namespace tensorlib::tokenizer
