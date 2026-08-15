@@ -65,7 +65,7 @@ void Tokenizer::save(const std::filesystem::path& path) const {
         throw std::runtime_error("Failed to open tokenizer file for writing: " + path.string());
     }
 
-    writeValue(file, MAGIC);
+    file.write(MAGIC.data(), static_cast<std::streamsize>(MAGIC.size()));
     writeValue(file, FORMAT_VERSION);
 
     const uint32_t vocab_size = static_cast<uint32_t>(m_vocab.size());
