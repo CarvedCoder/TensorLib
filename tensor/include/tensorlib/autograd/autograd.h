@@ -27,6 +27,8 @@ class Autograd {
     inline static size_t next_id{};
 
   public:
+    static std::vector<std::shared_ptr<Node>> topoSort(const std::shared_ptr<TensorImpl>& root);
+
     static std::shared_ptr<Node> makeNode(std::vector<std::shared_ptr<TensorImpl>>& inputs,
                                           std::shared_ptr<TensorImpl>& output, std::string op_name,
                                           std::function<void(const float*, size_t)> backward_fn,

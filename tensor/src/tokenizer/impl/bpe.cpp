@@ -1,3 +1,4 @@
+#include "tensorlib/tokenizer/tokenizer.h"
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -8,12 +9,12 @@
 #include <vector>
 namespace tensorlib::tokenizer::impl::bpe {
 
-PairFrequency countPairs(const std::vector<uint32_t>& bytes) {
+PairFrequency countPairs(const std::vector<uint16_t>& bytes) {
     PairFrequency result;
     result.freq.reserve(bytes.size());
     result.order.reserve(bytes.size());
     for (const auto [first, second] : bytes | std::ranges::views::adjacent<2>) {
-        uint64_t key = static_cast<uint64_t>((static_cast<uint64_t>(first) << 32) | second);
+        uint32_t key = static_cast<uint32_t>((static_cast<uint64_t>(first) << 16) | second);
         auto [it, inserted] = result.freq.try_emplace(key, 0);
 
         if (inserted)
@@ -23,10 +24,10 @@ PairFrequency countPairs(const std::vector<uint32_t>& bytes) {
 
     return result;
 }
-uint64_t getMostFrequentPair(const PairFrequency& pf) {
-    uint64_t best = pf.order.front();
+uint32_t getMostFrequentPair(const PairFrequency& pf) {
+    uint32_t best = pf.order.front();
     auto best_freq = pf.freq.at(best);
-    for (uint64_t key : pf.order) {
+    for (uint32_t key : pf.order) {
         auto f = pf.freq.at(key);
         if (f > best_freq) {
             best = key;
@@ -36,27 +37,46 @@ uint64_t getMostFrequentPair(const PairFrequency& pf) {
     return best;
 }
 
-std::pair<uint32_t, uint32_t> decodePair(const uint64_t& val) {
-    return {static_cast<uint32_t>(val >> 32), static_cast<uint32_t>(val)};
+std::pair<uint16_t, uint16_t> decodePair(const uint32_t& val) {
+    return {static_cast<uint32_t>(val >> 16), static_cast<uint16_t>(val)};
 }
 
-std::vector<uint32_t> merge(const std::vector<uint32_t>& tokens_list,
-                            const std::pair<uint32_t, uint32_t>& decodedPair, uint32_t index) {
-    uint32_t first = decodedPair.first;
-    uint32_t second = decodedPair.second;
-    std::vector<uint32_t> new_tokens;
-    new_tokens.reserve(tokens_list.size());
-    size_t i = 0;
-    while (i < tokens_list.size()) {
-        if (i + 1 < tokens_list.size() && tokens_list[i] == first && tokens_list[i + 1] == second) {
-            new_tokens.push_back(index);
-            i += 2;
+void merge(std::vector<uint16_t>& tokens_list, const std::pair<uint16_t, uint16_t>& decodedPair,
+           uint16_t index) {
+    const auto [first, second] = decodedPair;
+    size_t read = 0, write = 0;
+    while (read < tokens_list.size()) {
+        if (read + 1 < tokens_list.size() && tokens_list[read] == first &&
+            tokens_list[read + 1] == second) {
+            tokens_list[write++] = index;
+            read += 2;
         } else {
-            new_tokens.push_back(tokens_list[i]);
-            i++;
+            tokens_list[write++] = tokens_list[read++];
         }
     }
-    return new_tokens;
+    tokens_list.resize(write);
+}
+
+std::vector<std::vector<uint8_t>> createVocab(uint16_t vocab_size) {
+    std::vector<std::vector<uint8_t>> vocab(vocab_size);
+    for (size_t i = 0; i < vocab_size; i++) {
+        vocab[i].push_back(static_cast<uint8_t>(i));
+    }
+    return vocab;
+}
+
+std::vector<MergeRule> createMegreRules(uint16_t num_merges) {
+    std::vector<MergeRule> merge_rules;
+    merge_rules.reserve(num_merges);
+    return merge_rules;
+}
+
+void buildVocab(std::vector<std::vector<uint8_t>>& vocab, const MergeRule& merge_rule) {
+    const auto [first, second] = merge_rule.merge_tokens;
+    auto& token = vocab[merge_rule.result];
+    token.reserve(vocab[first].size() + vocab[second].size());
+    token.insert(token.end(), vocab[first].begin(), vocab[first].end());
+    token.insert(token.end(), vocab[second].begin(), vocab[second].end());
 }
 
 } // namespace tensorlib::tokenizer::impl::bpe

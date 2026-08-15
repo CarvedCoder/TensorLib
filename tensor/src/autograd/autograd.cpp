@@ -1,7 +1,10 @@
+#include "tensorlib/autograd/autograd.h"
 #include <functional>
 #include <memory>
 #include <tensorlib/autograd.h>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 
 std::shared_ptr<Node> Autograd::makeNode(std::vector<std::shared_ptr<TensorImpl>>& inputs,
                                          std::shared_ptr<TensorImpl>& output, std::string op_name,
@@ -22,9 +25,26 @@ std::shared_ptr<Node> Autograd::makeNode(std::vector<std::shared_ptr<TensorImpl>
     return node;
 }
 
+std::vector<std::shared_ptr<Node>> Autograd::topoSort(const std::shared_ptr<TensorImpl>& root) {
+    std::vector<std::shared_ptr<Node>> order;
+    std::unordered_set<size_t> visited;
+    std::function<void(const std::shared_ptr<TensorImpl>&)> dfs =
+        [&](const std::shared_ptr<TensorImpl>& tensor) {
+            const auto& node = tensor->m_grad_fn;
+            if (!node || !visited.insert(node->id).second)
+                return;
+            for (const auto& input : node->inputs)
+                dfs(input);
+
+            order.push_back(node);
+        };
+    dfs(root);
+    return order;
+}
+
 void Autograd::clearExpired() {
     for (auto it = registry.begin(); it != registry.end();) {
-        it = it->second.expired() ? registry.erase(it) : it++;
+        it = it->second.expired() ? registry.erase(it) : ++it;
     }
 }
 

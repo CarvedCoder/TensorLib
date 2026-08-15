@@ -60,6 +60,7 @@ class Tensor {
     std::ranges::minmax_result<float> getMinMax();
     std::shared_ptr<TensorImpl> getImpl() const;
     void zeroGrad() const;
+    void backward() const;
     const float* getGradPtr() const;
     float* getMutableGradPtr() const;
 };

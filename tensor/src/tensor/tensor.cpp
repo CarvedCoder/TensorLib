@@ -7,10 +7,10 @@
 #include <memory>
 #include <span>
 #include <stdexcept>
+#include <tensorlib/autograd.h>
 #include <tensorlib/tensor.h>
 #include <tensorlib/tensor_RNG.h>
 #include <tensorlib/tensor_impl.h>
-
 Tensor::Tensor(std::shared_ptr<TensorImpl>& tensorData) : TensorData(std::move(tensorData)) {}
 
 size_t TensorImpl::calculateRank() {
@@ -368,6 +368,28 @@ std::shared_ptr<TensorImpl> Tensor::getImpl() const {
 void Tensor::zeroGrad() const {
     if (TensorData->m_grad)
         std::fill_n(TensorData->m_grad.get(), TensorData->m_total_size, 0.0f);
+}
+
+void Tensor::backward() const {
+    if (TensorData->m_total_size != 1)
+        throw std::runtime_error("backward() requires a scalar tensor");
+
+    auto order = Autograd::topoSort(TensorData);
+
+    for (const auto& node : order)
+        if (auto output = node->output.lock())
+            std::fill_n(output->m_grad.get(), output->m_total_size, 0.0f);
+
+    TensorData->ensureGrad();
+    std::fill_n(TensorData->m_grad.get(), TensorData->m_total_size, 0.0f);
+    TensorData->m_grad[0] = 1.0f;
+
+    for (auto it = order.rbegin(); it != order.rend(); ++it) {
+        auto output = (*it)->output.lock();
+        if (!output)
+            continue;
+        (*it)->backward_fn(output->m_grad.get(), output->m_total_size);
+    }
 }
 
 const float* Tensor::getGradPtr() const {
