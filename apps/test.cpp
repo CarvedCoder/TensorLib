@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
     tokenizer::BPETrainer trainer;
     tok = trainer.train(Data, vocab_size);
     tok.save("../bpe/trained.bin");
+
     auto str1 = tok.encode("hey bro , i'm encoding this message");
     auto str = tok.decode(str1);
     std::print("Decoded string : '{}'", str);

@@ -59,8 +59,8 @@ void merge(std::vector<uint16_t>& tokens_list, const std::pair<uint16_t, uint16_
 
 std::vector<std::vector<uint8_t>> createVocab(uint16_t vocab_size) {
     std::vector<std::vector<uint8_t>> vocab(vocab_size);
-    for (size_t i = 0; i < vocab_size; i++) {
-        vocab[i].push_back(static_cast<uint8_t>(i));
+    for (size_t i = 0; i < 256; i++) {
+        vocab[i].emplace_back(static_cast<uint8_t>(i));
     }
     return vocab;
 }

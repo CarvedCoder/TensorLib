@@ -14,6 +14,10 @@ Tokenizer::Tokenizer(const std::vector<uint16_t>& trained_tokens,
     : m_trained_tokens(trained_tokens), m_merge_rules(merge_rules), m_vocab(vocab),
       m_vocab_size(vocab_size) {}
 
+const std::vector<uint8_t>& Tokenizer::vocab(uint16_t id) const {
+    return m_vocab[id];
+}
+
 std::string Tokenizer::decode(std::span<const uint16_t> ids) const {
     std::string output;
     for (uint16_t id : ids) {
