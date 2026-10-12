@@ -55,6 +55,7 @@ void LinearRegression(Tensor& X, Tensor& y, Tensor& w, Tensor& b, Tensor& y_hat,
 }
 
 int main(int argc, char* argv[]) {
+    using namespace TensorOps;
     std::filesystem::path data_path = "../csv/Housing.csv";
     DataFrame df(CSVParser::readCSV(data_path));
     df.head();
@@ -77,5 +78,5 @@ int main(int argc, char* argv[]) {
     Tensor b = Tensor::createRandTensor({X.getShape()[1]});
     Tensor y_hat = Tensor::createZeros({X.getShape()[0]});
     std::println("{}", X.getShape());
-    LinearRegression(X, y, w, b, y_hat, 0.01, 1);
+    // LinearRegression(X, y, w, b, y_hat, 0.01, 1);
 }

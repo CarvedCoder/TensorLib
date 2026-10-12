@@ -9,12 +9,14 @@
 #include <vector>
 namespace tensorlib::tokenizer::impl::bpe {
 
+// Make and count the pairs
 PairFrequency countPairs(const std::vector<uint16_t>& bytes) {
     PairFrequency result;
     result.freq.reserve(bytes.size());
     result.order.reserve(bytes.size());
     for (const auto [first, second] : bytes | std::ranges::views::adjacent<2>) {
-        uint32_t key = static_cast<uint32_t>((static_cast<uint64_t>(first) << 16) | second);
+        // shift the first token 16 bits to the left and then add the second token
+        uint32_t key = static_cast<uint32_t>((static_cast<uint32_t>(first) << 16) | second);
         auto [it, inserted] = result.freq.try_emplace(key, 0);
 
         if (inserted)
@@ -24,6 +26,7 @@ PairFrequency countPairs(const std::vector<uint16_t>& bytes) {
 
     return result;
 }
+
 uint32_t getMostFrequentPair(const PairFrequency& pf) {
     uint32_t best = pf.order.front();
     auto best_freq = pf.freq.at(best);
@@ -46,6 +49,7 @@ void merge(std::vector<uint16_t>& tokens_list, const std::pair<uint16_t, uint16_
     const auto [first, second] = decodedPair;
     size_t read = 0, write = 0;
     while (read < tokens_list.size()) {
+        // if the indexes from the tokens_list are a pair then merge them and give them a new index
         if (read + 1 < tokens_list.size() && tokens_list[read] == first &&
             tokens_list[read + 1] == second) {
             tokens_list[write++] = index;

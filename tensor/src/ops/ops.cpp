@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <flat_map>
 #include <stdexcept>
 #include <tensorlib/autograd.h>
 #include <tensorlib/ops.h>
@@ -167,6 +168,27 @@ Tensor operator*(const Tensor& t1, const Tensor& t2) {
     }
 
     return binaryKernel(t1, t2, std::multiplies<float>{});
+}
+
+Tensor dot(const Tensor& t1, const Tensor& t2) {
+
+    if (sameShape(t1.getShape(), t2.getShape())) {
+        Tensor result = Tensor::createZeros({1});
+        size_t n = t1.getTotalSize();
+        const float* __restrict__ s1 = t1.getDataPtr();
+        const float* __restrict__ s2 = t2.getDataPtr();
+        float* __restrict__ out = result.getMutableDataPtr();
+        for (size_t i = 0; i < n; i++) {
+            out[0] += s1[i] * s2[i];
+        }
+    }
+
+    Tensor result = Tensor::createZeros({1});
+    float* result_ptr = result.getMutableDataPtr();
+    for (const auto elem : binaryKernel(t1, t2, std::multiplies<float>{}).view()) {
+        result_ptr[0] += elem;
+    }
+    return result;
 }
 
 Tensor operator/(const Tensor& t1, const Tensor& t2) {

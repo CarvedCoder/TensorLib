@@ -361,6 +361,10 @@ const std::span<const size_t> Tensor::getStrides() const {
     return std::span<const size_t>(TensorData->m_strides.data(), TensorData->m_rank);
 }
 
+std::span<const float> Tensor::getGradData() {
+    return std::span<const float>(TensorData->m_grad.get(), TensorData->m_total_size);
+}
+
 std::shared_ptr<TensorImpl> Tensor::getImpl() const {
     return TensorData;
 }
