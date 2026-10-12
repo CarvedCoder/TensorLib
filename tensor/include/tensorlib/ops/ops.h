@@ -73,6 +73,7 @@ Tensor operator-(const Tensor& lhs, const float rhs);
 Tensor operator*(const Tensor& t1, const Tensor& t2);
 Tensor operator*(const Tensor& lhs, float rhs);
 Tensor operator/(const Tensor& t1, const Tensor& t2);
+Tensor dot(const Tensor& t1, const Tensor& t2);
 Tensor matmul(const Tensor& t1, const Tensor& t2);
 Tensor transpose2D(const Tensor& t);
 float calcCost(const Tensor& t1, const Tensor& t2, LossType mode = LossType::SSE);

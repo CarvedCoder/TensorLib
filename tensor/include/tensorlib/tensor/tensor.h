@@ -61,6 +61,7 @@ class Tensor {
     std::shared_ptr<TensorImpl> getImpl() const;
     void zeroGrad() const;
     void backward() const;
+    std::span<const float> getGradData();
     const float* getGradPtr() const;
     float* getMutableGradPtr() const;
 };

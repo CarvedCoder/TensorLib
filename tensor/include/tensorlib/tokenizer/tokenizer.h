@@ -10,6 +10,7 @@ constexpr std::string_view MAGIC = "TLTK";
 constexpr uint32_t FORMAT_VERSION = 1;
 constexpr uint16_t INITIAL_VOCAB_SIZE = 256;
 
+// The truth merge table
 struct MergeRule {
     std::pair<uint16_t, uint16_t> merge_tokens;
     uint16_t result;
